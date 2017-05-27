@@ -1,0 +1,55 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans"  
+    xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"  
+    xmlns:mvc="http://www.springframework.org/schema/mvc"
+    xmlns:util="http://www.springframework.org/schema/util"
+    xmlns:context="http://www.springframework.org/schema/context"  
+    xsi:schemaLocation="http://www.springframework.org/schema/beans 
+    http://www.springframework.org/schema/beans/spring-beans-3.0.xsd 
+    http://www.springframework.org/schema/util 
+    http://www.springframework.org/schema/util/spring-util.xsd 
+    http://www.springframework.org/schema/mvc 
+    http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+    http://www.springframework.org/schema/context
+    http://www.springframework.org/schema/context/spring-context-3.2.xsd">
+    
+    <!-- Application environment setting, please never change the name -->  
+    <bean id="propertyConfigurer" class="org.springframework.beans.factory.config.PropertyPlaceholderConfigurer">  
+        <property name="locations">  
+            <list>  
+                <value>classpath:org/openjava/upay/web/conf/upay-server.properties</value>
+                <value>classpath:org/openjava/upay/core/conf/upay-core.properties</value>
+                <value>classpath:org/openjava/upay/shared/conf/upay-shared.properties</value>
+                <value>classpath:org/openjava/upay/trade/conf/upay-trade.properties</value>
+                <value>classpath:org/openjava/upay/rpc/conf/upay-rpc.properties</value>
+            </list>
+        </property>
+    </bean>
+    
+    <!-- Distributed Session Support Start -->
+    <bean id="timeoutSessionFilter" class="org.openjava.upay.web.infrastructure.session.UserSessionTimeoutFilter">
+        <property name="redirectUrl" value="/"/>
+    </bean>
+
+    <bean id="distributedSessionFilter" class="org.openjava.upay.web.infrastructure.session.DistributedSessionFilter">
+        <property name="sessionManager" ref="sessionManager"/>
+    </bean>
+    
+    <bean id="sessionManager" class="org.openjava.upay.web.infrastructure.session.DistributedSessionManager">
+        <property name="sessionRepository" ref="sessionRepository"/>
+        <property name="maxInactiveInterval" value="${icard.session.maxInactiveInterval}"/>
+    </bean>
+    
+    <bean id="sessionRepository" class="org.openjava.upay.web.infrastructure.session.RedisSessionRepository" init-method="start" destroy-method="destroy">
+        <property name="jedisPoolConfig" ref="jedisPoolConfig"/>
+        <property name="redisHost" value="${redis.host}"/>
+        <property name="redisPort" value="${redis.port}"/>
+    </bean>
+    
+    <!-- Distributed Session Support End -->
+    
+    <import resource="classpath:org/openjava/upay/core/conf/upay-core.xml"/>
+    <import resource="classpath:org/openjava/upay/shared/conf/upay-shared.xml"/>
+    <import resource="classpath:org/openjava/upay/trade/conf/upay-trade.xml"/>
+    <import resource="classpath:org/openjava/upay/rpc/conf/upay-rpc.xml"/>
+</beans>

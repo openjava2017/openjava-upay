@@ -1,0 +1,25 @@
+<!--#macro(main)-->
+<form class="form-horizontal" role="form">
+    <div class="form-group">
+        <label for="inputName" class="col-md-2 control-label">姓名</label>
+        <div class="col-md-10">
+            <input type="text" class="form-control" id="inputName" placeholder="姓名">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="inputEmail" class="col-md-2 control-label">邮箱地址</label>
+        <div class="col-md-10">
+            <input type="email" class="form-control" id="inputEmail" placeholder="邮箱地址">
+        </div>
+    </div>
+    <div class="form-group">
+        <label for="inputGender" class="col-md-2 control-label">性别</label>
+        <div class="col-md-10">
+            <select class="form-control" id="inputGender">
+                <option value ="1">男</option>
+                <option value ="2">女</option>
+            </select>
+        </div>
+    </div>
+</form>
+<!--#end-->

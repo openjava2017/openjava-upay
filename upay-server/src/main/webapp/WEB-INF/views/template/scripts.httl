@@ -1,0 +1,9 @@
+<script type="text/javascript" src="${contextPath}/scripts/jquery/jquery-1.12.4.min.js"></script>
+<script type="text/javascript" src="${contextPath}/scripts/bootstrap/bootstrap.min.js"></script>
+<script type="text/javascript" src="${contextPath}/scripts/datatables/jquery.dataTables.min.js"></script>
+<script type="text/javascript" src="${contextPath}/scripts/datatables/dataTables.bootstrap.min.js"></script>
+<script type="text/javascript" src="${contextPath}/scripts/datatables/dataTables.bootstrap.custom.js"></script>
+<script type="text/javascript" src="${contextPath}/scripts/parsley/parsley.min.js"></script>
+<script type="text/javascript" src="${contextPath}/scripts/parsley/i18n/zh_cn.js"></script>
+<script type="text/javascript" src="${contextPath}/scripts/dialog/zebra_dialog.js"></script>
+<script type="text/javascript" src="${contextPath}/scripts/application/utils.js"></script>

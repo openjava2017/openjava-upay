@@ -1,0 +1,62 @@
+<!--#macro(main)-->
+<script type="text/javascript">
+    function openDialog() {
+        var demoDialog = utils.openAjaxDialog("/demo/dialog.action",
+            {title: '对话框演示', data:{param: 'Here we go'}}, [
+            {caption: '提交', callback: function() {
+                return false; // 返回false，对话框不会关闭，当异步处理完调用demoDialog.close()方法关闭
+            }},
+            {caption: '关闭', callback: function() {
+                return true; // 返回true，对话框点击后自动关闭
+            }}]);
+    }
+
+    function openEventDialog() {
+        var demoEventDialog = utils.openAjaxDialog("/demo/dialog.action",
+                {title: '对话框演示', data:{param: 'Here we go'}, complete: function (XHR, TS) {
+                    alert("Ajax content loaded completely")
+                }, onClose: function(caption) {
+                    if (!caption) {
+                        alert("No button clicked");
+                    } else if (caption == 'Submit') {
+                        alert("Submit button clicked");
+                    } else if (caption == 'Close') {
+                        alert("Close button clicked");
+                    }
+                }}, [
+                {caption: 'Submit', callback: function() {
+                    return true;
+                }},
+                {caption: 'Close', callback: function() {
+                    return true;
+                }}]);
+    }
+</script>
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-primary">
+            <div class="panel-heading">
+                <div class="panel-heading-btn"></div>
+                <h4 class="panel-title">信息提示</h4>
+            </div>
+            <div class="panel-body">
+                <div class="row" style="margin-bottom: 15px;">
+                    <div class="col-md-12">
+                        <button type="button" onclick="javascript:utils.error('Here we go');">Error</button>
+                        <button type="button" onclick="javascript:utils.info('Here we go');">Info</button>
+                        <button type="button" onclick="javascript:utils.warn('Here we go');">Warn</button>
+                    </div>
+                </div>
+                <div class="row">
+                    <div class="col-md-12" style="margin-bottom: 15px;">
+                        <button type="button" onclick="javascript:openDialog();">模态对话框</button>
+                    </div>
+                    <div class="col-md-12">
+                        <button type="button" onclick="javascript:openEventDialog();">事件对话框</button>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<!--#end-->

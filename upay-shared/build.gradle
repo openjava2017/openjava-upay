@@ -1,0 +1,14 @@
+group = 'org.openjava'
+archivesBaseName = 'upay-shared'
+
+dependencies {
+    compile group: 'org.springframework', name: 'spring-jdbc', version: springVersion
+    compile group: 'org.springframework', name: 'spring-tx', version: springVersion
+    compile group: 'org.mybatis', name: 'mybatis', version: mybatisVersion
+    compile group: 'org.mybatis', name: 'mybatis-spring', version: mybatisSpringVersion
+    compile group: 'com.alibaba', name: 'druid', version: druidVersion
+    compile group: 'mysql', name: 'mysql-connector-java', version: mysqlConnectorVersion
+    compile group: 'redis.clients', name: 'jedis', version: jedisVersion
+
+    compile project(':upay-util')
+}

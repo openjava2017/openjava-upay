@@ -1,0 +1,7 @@
+group = 'org.openjava'
+archivesBaseName = 'upay-rpc'
+
+dependencies {
+    compile group: 'org.apache.httpcomponents', name: 'httpclient', version: '4.3.5'
+    compile project(':upay-util')
+}

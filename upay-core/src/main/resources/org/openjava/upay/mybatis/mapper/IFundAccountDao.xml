@@ -1,0 +1,41 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.openjava.upay.core.dao.IFundAccountDao">
+
+    <resultMap id="FundAccountMap" type="org.openjava.upay.core.model.FundAccount">
+        <id column="id" property="id"/>
+        <result column="type" property="type"/>
+        <result column="code" property="code"/>
+        <result column="name" property="name"/>
+        <result column="gender" property="gender"/>
+        <result column="mobile" property="mobile"/>
+        <result column="email" property="email"/>
+        <result column="id_code" property="idCode"/>
+        <result column="address" property="address"/>
+        <result column="login_pwd" property="loginPwd"/>
+        <result column="trade_pwd" property="tradePwd"/>
+        <result column="pwd_change" property="pwdChange"/>
+        <result column="login_time" property="loginTime"/>
+        <result column="secret_key" property="secretKey"/>
+        <result column="head_img" property="headImg"/>
+        <result column="merchant_id" property="merchantId"/>
+        <result column="status" property="status"/>
+        <result column="lock_time" property="lockTime"/>
+        <result column="created_time" property="createdTime"/>
+        <result column="modified_time" property="modifiedTime"/>
+    </resultMap>
+
+    <select id="findFundAccountById" parameterType="long" resultMap="FundAccountMap">
+        <![CDATA[
+            SELECT * FROM upay_fund_account WHERE id = #{accountId}
+        ]]>
+    </select>
+
+    <update id="updateAccountLockStatus">
+        UPDATE upay_fund_account SET status = #{lockStatus}, lock_time = #{when},
+          modified_time = #{when} WHERE id = #{id}
+    </update>
+
+</mapper>

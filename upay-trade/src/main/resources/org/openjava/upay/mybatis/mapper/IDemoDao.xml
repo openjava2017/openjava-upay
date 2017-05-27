@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.openjava.upay.trade.dao.IDemoDao">
+    <sql id="QUERY_COLUMN_LIST">
+        <![CDATA[
+            id as id, account as account, name as name, gender as gender, mobile as mobile, telphone as telphone,
+            email as email, password as password, status as status, description as description,
+            created_time as createdTime, modified_time as modifiedTime
+        ]]>
+    </sql>
+
+    <select id="countEmployees" resultType="long">
+        SELECT COUNT(1) FROM icard_employee
+        <where>
+            <if test="account != null and account != ''">
+                AND account = #{account}
+            </if>
+            <if test="mobile != null and mobile != ''">
+                AND mobile = #{mobile}
+            </if>
+        </where>
+    </select>
+
+    <select id="listEmployees" resultType="org.openjava.upay.trade.model.Employee">
+        SELECT <include refid="QUERY_COLUMN_LIST"/> FROM icard_employee
+        <where>
+            <if test="account != null and account != ''">
+                AND account = #{account}
+            </if>
+            <if test="mobile != null and mobile != ''">
+                AND mobile = #{mobile}
+            </if>
+        </where>
+        limit #{start}, #{length}
+    </select>
+
+    <select id="listAllEmployees" resultType="org.openjava.upay.trade.model.Employee">
+        SELECT <include refid="QUERY_COLUMN_LIST"/> FROM icard_employee
+    </select>
+</mapper>

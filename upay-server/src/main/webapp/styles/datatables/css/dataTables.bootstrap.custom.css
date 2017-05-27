@@ -1,0 +1,25 @@
+table.dataTable > thead > tr {
+    background-color: #F9F9F9;
+}
+table.dataTable > tfoot > tr {
+    background-color: #F9F9F9;
+}
+table.dataTable > tbody > tr {
+    height:37px;
+    line-height:37px;
+}
+table.dataTable > tbody > tr:nth-of-type(odd) {
+    background-color: rgba(228, 245, 255, 0.36);
+}
+table.dataTable > tbody > tr:nth-of-type(even) {
+    background-color: white;
+}
+table.dataTable > tbody > tr.focus {
+    background-color: #d9edf7;
+}
+table.dataTable > tbody > tr.highlight {
+    background-color: rgba(242, 255, 204, 0.45);
+}
+table.dataTable > tbody > tr.selected {
+    background-color: #F2FFCC;
+}

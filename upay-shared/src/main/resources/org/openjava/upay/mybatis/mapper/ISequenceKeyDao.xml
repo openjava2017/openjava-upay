@@ -1,0 +1,40 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+    "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+    
+<mapper namespace="org.openjava.upay.shared.dao.ISequenceKeyDao">
+
+    <resultMap id="PersistentKeyMap" type="org.openjava.upay.shared.model.PersistentSequenceKey">
+        <id column="id" property="id"/>
+        <result column="key" property="key"/>
+        <result column="start_with" property="startWith"/>
+        <result column="inc_span" property="incSpan"/>
+        <result column="scope" property="scope"/>
+        <result column="description" property="description"/>
+    </resultMap>
+    
+    <select id="loadSequenceKey" parameterType="string" resultMap="PersistentKeyMap">
+        <![CDATA[
+            SELECT * FROM upay_sequence_key WHERE `key` = #{key}
+        ]]>
+    </select>
+    
+    <select id="loadScopeSequenceKey" parameterType="map" resultMap="PersistentKeyMap">
+        <![CDATA[
+            SELECT * FROM upay_sequence_key WHERE `key` = #{key} AND `scope` = #{scope}
+        ]]>
+    </select>
+    
+    <select id="getSequenceKeyValue" parameterType="long" resultType="long">
+        <![CDATA[
+            SELECT start_with FROM upay_sequence_key where id = #{id}
+        ]]>
+    </select>
+    
+    <update id="compareAndSet" parameterType="map">
+        <![CDATA[
+            UPDATE upay_sequence_key set start_with = #{newValue}
+            WHERE id = #{id} AND start_with = #{oldValue}
+        ]]>
+    </update>
+</mapper>

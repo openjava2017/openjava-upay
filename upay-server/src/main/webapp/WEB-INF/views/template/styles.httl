@@ -1,0 +1,5 @@
+<link type="text/css" href="${contextPath}/styles/bootstrap/css/bootstrap.min.css" rel="stylesheet" />
+<link type="text/css" href="${contextPath}/styles/datatables/css/dataTables.bootstrap.min.css" rel="stylesheet" />
+<link type="text/css" href="${contextPath}/styles/datatables/css/dataTables.bootstrap.custom.css" rel="stylesheet" />
+<link type="text/css" href="${contextPath}/styles/font-awesome/css/font-awesome.min.css" rel="stylesheet" />
+<link type="text/css" href="${contextPath}/styles/dialog/css/zebra_dialog.css" rel="stylesheet" />

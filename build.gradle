@@ -1,0 +1,75 @@
+apply plugin: 'java'
+apply plugin: 'idea'
+
+ext {
+    springVersion = '3.2.8.RELEASE'
+    mybatisVersion = '3.2.7'
+    mybatisSpringVersion = '1.2.2'
+    druidVersion = '1.0.1'
+    mysqlConnectorVersion = '5.1.30'
+    jedisVersion = '2.4.2'
+    quartzVersion = '2.2.1'
+}
+
+task release(dependsOn: 'build') << {
+}
+
+def loadGroovyConfig() {
+    def profile = project['profile']
+    def configFile = file('config.groovy')
+    new ConfigSlurper(profile).parse(configFile.toURL()).toProperties()
+}
+
+gradle.taskGraph.whenReady {taskGraph ->
+    if (taskGraph.hasTask(release)) {
+        version = '1.0.0'
+    } else {
+        version = '1.0.0-SNAPSHOT'
+    }
+}
+
+subprojects {
+    apply plugin: 'java'
+    apply plugin: 'maven'
+    apply plugin: 'idea'
+
+    sourceCompatibility = 1.7
+    version = '1.0.0'
+
+    compileJava {
+        options.encoding = 'UTF-8'
+    }
+
+    processResources {
+        from(sourceSets.main.resources.srcDirs) {
+            filter(org.apache.tools.ant.filters.ReplaceTokens, tokens: loadGroovyConfig())
+        }
+    }
+
+    repositories {
+        mavenLocal()
+        mavenCentral()
+        maven {
+            url "http://mvn3.diligrp.com"
+        }
+    }
+
+    dependencies {
+        compile group: 'org.springframework', name: 'spring-context', version: springVersion
+        compile group: 'org.slf4j', name: 'slf4j-api', version: '1.7.6'
+        compile group: 'ch.qos.logback', name: 'logback-classic', version: '1.1.1'
+        testCompile group: 'junit', name: 'junit', version: '4.11'
+    }
+
+    uploadArchives {
+        repositories {
+            flatDir {
+                dirs 'repos'
+            }
+        }
+    }
+
+    jar {
+        manifest.attributes provider: 'gradle'
+    }
+}

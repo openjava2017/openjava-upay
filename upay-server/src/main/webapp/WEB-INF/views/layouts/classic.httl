@@ -1,0 +1,25 @@
+<!DOCTYPE HTML>
+<html>
+    <head  lang="zh_cn">
+        <title>地利集团电子交易结算系统</title>
+        <script type="text/javascript">
+            var contextPath = "${contextPath}";
+        </script>
+        ${include("../template/styles.httl")}
+        ${include("../template/scripts.httl")}
+    </head>
+    <body>
+        <!-- <p>${header.userAgent}</p> -->
+        <div id="content" style="margin-left:0px;margin-top:5px;" class="content print">
+        ${main}
+        </div>
+    </body>
+    <script src="${contextPath}/scripts/parsley/dist/parsley.js"></script>
+    <script src="${contextPath}/scripts/common/assets/apps.min.js"></script>
+    <script type="text/javascript">
+    	$(document).ready(function() {
+			App.init();
+		});
+		window.ParsleyValidator.setLocale('zh_cn')
+	</script>
+</html>

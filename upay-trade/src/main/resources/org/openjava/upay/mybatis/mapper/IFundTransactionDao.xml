@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.openjava.upay.trade.dao.IFundTransactionDao">
+    <resultMap id="FundTransactionMap" type="org.openjava.upay.trade.model.FundTransaction">
+        <id column="id" property="id"/>
+        <result column="merchant_id" property="merchantId"/>
+        <result column="serial_no" property="serialNo"/>
+        <result column="type" property="type"/>
+        <result column="from_id" property="fromId"/>
+        <result column="from_name" property="fromName"/>
+        <result column="to_id" property="toId"/>
+        <result column="to_name" property="toName"/>
+        <result column="pipeline" property="pipeline"/>
+        <result column="amount" property="amount"/>
+        <result column="status" property="status"/>
+        <result column="description" property="description"/>
+        <result column="created_time" property="createdTime"/>
+        <result column="modified_time" property="modifiedTime"/>
+    </resultMap>
+
+    <resultMap id="TransactionFeeMap" type="org.openjava.upay.trade.model.TransactionFee">
+        <id column="id" property="id"/>
+        <result column="transaction_id" property="transactionId"/>
+        <result column="pipeline" property="pipeline"/>
+        <result column="amount" property="amount"/>
+        <result column="type" property="type"/>
+        <result column="created_time" property="createdTime"/>
+    </resultMap>
+
+    <update id="createFundTransaction" parameterType="org.openjava.upay.trade.model.FundTransaction">
+        INSERT INTO upay_fund_transaction
+            (id, merchant_id, serial_no, type, from_id, from_name, to_id,
+            to_name, pipeline, amount, status, description, created_time, modified_time)
+        VALUES
+            (#{id}, #{merchantId}, #{serialNo}, #{type}, #{fromId}, #{fromName}, #{toId},
+             #{toName}, #{pipeline}, #{amount}, #{status}, #{description}, #{createdTime}, #{modifiedTime})
+    </update>
+
+    <update id="createTransactionFee" parameterType="org.openjava.upay.trade.model.TransactionFee">
+        INSERT INTO upay_transaction_fee
+            (id, transaction_id, pipeline, amount, type, created_time)
+        VALUES
+            (#{id}, #{transactionId}, #{pipeline}, #{amount}, #{type}, #{createdTime})
+    </update>
+
+    <select id="findFundTransactionById" parameterType="long" resultMap="FundTransactionMap">
+        SELECT * FROM upay_fund_transaction WHERE id = #{transactionId}
+    </select>
+
+    <select id="findFundTransactionByNo" parameterType="string" resultMap="FundTransactionMap">
+        SELECT * FROM upay_fund_transaction WHERE id = #{serialNo}
+    </select>
+
+    <select id="findFeesByTransactionId" parameterType="long" resultMap="TransactionFeeMap">
+        SELECT * FROM upay_transaction_fee WHERE transaction_id = #{transactionId}
+    </select>
+
+    <update id="compareAndSetStatus">
+        UPDATE upay_fund_transaction SET status = #{newStatus}, modified_time = #{modifiedTime}
+        WHERE id = #{id} AND status = #{oldStatus}
+    </update>
+</mapper>

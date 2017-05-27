@@ -1,0 +1,9 @@
+group = 'org.openjava'
+archivesBaseName = 'upay-trade'
+
+dependencies {
+    compile project(':upay-core')
+    compile project(':upay-shared')
+    compile project(':upay-rpc')
+    compile project(':upay-util')
+}

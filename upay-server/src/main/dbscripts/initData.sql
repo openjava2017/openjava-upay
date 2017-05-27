@@ -1,0 +1,1 @@
+INSERT INTO `upay_sequence_key`(`id`, `key`, `start_with`, `inc_span`, `scope`, `description`) VALUES (1, 'FUND_TRANSACTION', 100001, 10, NULL, NULL);

@@ -1,0 +1,98 @@
+<?xml version="1.0"?>
+<!DOCTYPE module PUBLIC
+          "-//Puppy Crawl//DTD Check Configuration 1.3//EN"
+          "http://www.puppycrawl.com/dtds/configuration_1_3.dtd">
+
+<module name="Checker">
+	<property name="charset" value="UTF-8" />
+	<property name="severity" value="warning"/>
+	<module name="FileLength">
+	      <property name="max" value="2000"/>
+	</module>
+	<module name="RegexpMultiline">
+		<property name="format" value="System\.(out)|(err)\.print(ln)?\("/>
+	</module>
+	
+	<module name="TreeWalker">
+		<!-- 检测header -->
+		<!-- <module name="Header">
+			<property name="header"
+				value="// Copyright (C) 2014 DiLi All rights reserved" />
+		</module> -->
+		<property name="tabWidth" value="4"/>
+		<!-- 检测import -->
+		<module name="AvoidStarImport"/>
+		<module name="UnusedImports"/>
+		
+		<!-- 代码块级别检测 -->
+		<module name="EmptyBlock">
+            <property name="option" value="TEXT"/>
+            <property name="tokens" value="LITERAL_TRY, LITERAL_CATCH, LITERAL_FINALLY, LITERAL_IF, LITERAL_ELSE, LITERAL_SWITCH"/>
+        </module>
+        <module name="LeftCurly">
+        	<property name="option" value="nl"/>
+            <property name="tokens" value="CLASS_DEF, METHOD_DEF"/>
+        </module>
+        <module name="RightCurly"/>
+        <module name="NeedBraces"/>
+        <!-- naming -->
+        <module name="PackageName">
+            <property name="format" value="^[a-z]+(\.[a-z][a-z0-9]*)*$"/>
+        </module>
+        <module name="TypeName"/>
+        <module name="ClassTypeParameterName">
+            <property name="format" value="(^[A-Z][0-9]?)$|([A-Z][a-zA-Z0-9]*[T]$)"/>
+        </module>
+        <module name="MemberName">
+            <property name="format" value="^[a-z][a-z0-9][a-zA-Z0-9]*$"/>
+            <message key="name.invalidPattern"
+             value="Member name ''{0}'' must match pattern ''{1}''."/>
+        </module>
+        <module name="MethodName">
+            <property name="format" value="^[a-z][a-z0-9][a-zA-Z0-9_]*$"/>
+        </module>
+        <module name="MethodTypeParameterName">
+            <property name="format" value="(^[A-Z][0-9]?)$|([A-Z][a-zA-Z0-9]*[T]$)"/>
+        </module>
+        <module name="ConstantName"/>
+        <module name="LocalFinalVariableName"/>
+        <module name="LocalVariableName"/>
+        
+        <!-- annotation -->
+        <module name="MissingDeprecated"/>
+        <module name="MissingOverride"/>
+        
+        <!-- coding -->
+        <module name="DeclarationOrder"/>
+        <module name="EmptyStatement"/>
+        <module name="EqualsHashCode"/>
+        <module name="MagicNumber">
+            <property name="tokens" value="NUM_DOUBLE, NUM_FLOAT"/>
+            <property name="ignoreNumbers" value="-1,0,1,2,4,8,16,32"/>
+            <property name="ignoreAnnotation" value="true"/>
+        </module>
+        <module name="MissingSwitchDefault"/>
+        <module name="ModifierOrder"/>
+        
+        <!-- size -->
+        <module name="LineLength">
+			<property name="max" value="140"/>
+		</module>
+		
+		<!-- 空格检测 -->
+        <module name="GenericWhitespace"/>
+        <module name="WhitespaceAfter">
+		    <property name="tokens" value="COMMA"/>
+		</module>
+        <module name="MethodParamPad"/>
+        <module name="TypecastParenPad"/>
+        
+        <!-- 代码缩进 -->
+        <module name="Indentation"/>
+        
+        <!-- other -->
+        <module name="UncommentedMain"/>
+        <module name="ArrayTypeStyle" />
+        <module name="UpperEll" />
+	</module>
+</module>

@@ -1,0 +1,1 @@
+include "upay-server", "upay-proxy", "upay-trade", "upay-core", "upay-rpc", "upay-shared", "upay-util"

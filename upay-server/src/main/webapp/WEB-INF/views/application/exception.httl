@@ -1,0 +1,22 @@
+<!--#macro(main)-->
+<div class="row">
+    <div class="col-md-12">
+        <div class="panel panel-warning">
+            <div class="panel-heading">
+                <div class="panel-heading-btn"></div>
+                <h4 class="panel-title">系统异常</h4>
+            </div>
+            <div class="panel-body">
+                <dl>
+                    <dt>请求地址</dt>
+                    <dd>${requestUri}<br/><br/></dd>
+                    <dt>异常描述</dt>
+                    <dd>${message}<br/><br/></dd>
+                    <dt>异常堆栈</dt>
+                    <dd>${stackTrace}</dd>
+                </dl>
+            </div>
+        </div>
+    </div>
+</div>
+<!--#end-->

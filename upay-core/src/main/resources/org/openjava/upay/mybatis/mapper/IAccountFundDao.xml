@@ -1,0 +1,43 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.openjava.upay.core.dao.IAccountFundDao">
+
+    <resultMap id="AccountFundMap" type="org.openjava.upay.core.model.AccountFund">
+        <id column="id" property="id"/>
+        <result column="balance" property="balance"/>
+        <result column="frozen_amount" property="frozenAmount"/>
+        <result column="version" property="version"/>
+        <result column="created_time" property="createdTime"/>
+        <result column="modified_time" property="modifiedTime"/>
+    </resultMap>
+
+    <select id="findAccountFundById" parameterType="long" resultMap="AccountFundMap">
+        <![CDATA[
+            SELECT * FROM upay_account_fund WHERE id = #{accountId}
+        ]]>
+    </select>
+
+    <update id="compareAndSetVersion" parameterType="org.openjava.upay.core.model.AccountFund">
+            UPDATE upay_account_fund SET version = version + 1
+            <if test="balance != null">
+              , balance = #{balance}
+            </if>
+            <if test="frozenAmount != null">
+              ,frozen_amount = #{frozenAmount}
+            </if>
+            <if test="modifiedTime != null">
+              ,modified_time = #{modifiedTime}
+            </if>
+            WHERE id = #{id} AND version = #{version}
+    </update>
+
+    <update id="createFundStatement" parameterType="org.openjava.upay.core.model.FundStatement">
+        <![CDATA[
+            INSERT upay_fund_statement(account_id, transaction_id, pipeline, action, balance, amount, description, created_time)
+            VALUES (#{accountId}, #{transactionId}, #{pipeline}, #{action}, #{balance}, #{amount}, #{description}, #{createdTime})
+        ]]>
+    </update>
+
+</mapper>

@@ -1,0 +1,92 @@
+<!DOCTYPE HTML>
+<html lang="zh_cn">
+<head>
+	<meta charset="utf-8">
+	<title>登录</title>
+	<meta name="viewport" content="width=device-width, initial-scale=1.0">
+	<meta name="description" content="">
+	<meta name="author" content="">
+	<link type="text/css" href="${contextPath}/styles/auth/index.css" rel="stylesheet" />
+    <link type="text/css" href="${contextPath}/styles/parsley/parsley.css" rel="stylesheet" />
+	<script type="text/javascript" src="${contextPath}/scripts/jquery/jquery-1.9.1.min.js"></script>
+	<script type="text/javascript" src="${contextPath}/scripts/parsley/parsley.min.js"></script>
+	
+	<script type="text/javascript">
+	    var contextPath = "${contextPath}";
+	    $(document).ready(function() {
+	    	var fromInstance = window.fromInstance = $('#authForm').parsley();
+	    	
+	    	fromInstance.cleanError = function() {
+                $("#authTip").html("");
+            }
+	    	fromInstance.showError = function(message) {
+	    		$("#authTip").html("<i class='icon icon-tip'></i>" + message);
+	    		setTimeout("fromInstance.cleanError()", 2000);
+	    	}
+	    	
+	    	fromInstance.doAjaxRequest = function() {
+	    		if (fromInstance.validate()) {
+                    $.ajax({
+                        url : "${contextPath}/user/authorizeUser.auth",
+                        type : "POST",
+                        dataType : "json",
+                        data : {
+                            "account" : $.trim($("#account").val()),
+                            "password" : $.trim($("#password").val())
+                        },
+                        success : function(data) {
+                            if (data.code == "success" ) {
+                                window.location.href = "${contextPath}/user/initMain.page";
+                            } else {
+                                fromInstance.showError(data.message);
+                            }
+                        },
+                        error : function() {
+                            fromInstance.showError("网络异常，请检查网络连接");
+                        }
+                    });
+                }
+	    	}
+	    	
+	    	$("#submitBtn").click(function() {
+	    		fromInstance.doAjaxRequest();
+    		});
+	    	
+	    	$('#account').bind('keypress',function(event) {
+	    		if(event.keyCode == "13") {
+	    		    $('#password').focus();
+	    		}
+            });
+	    	
+	    	$('#password').bind('keypress',function(event) {
+	            if(event.keyCode == "13") {
+	            	fromInstance.doAjaxRequest();
+	            }
+	        });
+	    });
+    </script>
+</head>
+<body>
+    <div class="caption container">
+        <img src="${contextPath}/images/caption1.png" alt="" class="caption">
+    </div>
+    <div class="form-wrap clearfix">
+        <form id="authForm">
+            <div class="input-prepend">
+                <i class="icon icon-user"></i>
+                <input id="account" type="text" class="span2" placeholder="请输入用户名"
+                    data-parsley-required="true" data-parsley-trigger="blur" data-parsley-errors-messages-disabled data-parsley-whitespace="trim">
+            </div>
+            <div class="input-prepend">
+                <i class="icon icon-lock"></i>
+                <input id="password" type="password" class="span2" type="text" placeholder="请输入密码"
+                    data-parsley-required="true" data-parsley-trigger="blur" data-parsley-errors-messages-disabled data-parsley-whitespace="trim">
+            </div>
+            <p id="authTip" class="tip"></p>
+            <div>
+                <button id="submitBtn" type="button" class="btn" style="background-color: #2BB945">登 录</button>
+            </div>
+        </form>
+    </div>
+</body>
+</html>
