@@ -1,15 +1,13 @@
 package org.openjava.upay.proxy.domain;
 
-import org.openjava.upay.trade.type.Phase;
-
 public class MessageEnvelop
 {
     private Long appId;
+    private String service;
     private String accessToken;
     private String signature;
     private String body;
     private String charset;
-    private Phase phase;
 
     public Long getAppId()
     {
@@ -19,6 +17,16 @@ public class MessageEnvelop
     public void setAppId(Long appId)
     {
         this.appId = appId;
+    }
+
+    public String getService()
+    {
+        return service;
+    }
+
+    public void setService(String service)
+    {
+        this.service = service;
     }
 
     public String getAccessToken()
@@ -59,15 +67,5 @@ public class MessageEnvelop
     public void setCharset(String charset)
     {
         this.charset = charset;
-    }
-
-    public Phase getPhase()
-    {
-        return phase;
-    }
-
-    public void setPhase(Phase phase)
-    {
-        this.phase = phase;
     }
 }

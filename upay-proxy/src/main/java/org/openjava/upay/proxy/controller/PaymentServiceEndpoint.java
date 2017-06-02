@@ -1,15 +1,13 @@
 package org.openjava.upay.proxy.controller;
 
 import org.openjava.upay.core.exception.FundTransactionException;
-import org.openjava.upay.core.model.Merchant;
 import org.openjava.upay.proxy.domain.AjaxMessage;
 import org.openjava.upay.proxy.domain.MessageEnvelop;
 import org.openjava.upay.proxy.exception.PackDataEnvelopException;
 import org.openjava.upay.proxy.exception.UnpackDataEnvelopException;
 import org.openjava.upay.proxy.util.AjaxHttpUtils;
+import org.openjava.upay.proxy.util.Constants;
 import org.openjava.upay.shared.type.ErrorCode;
-import org.openjava.upay.trade.domain.Transaction;
-import org.openjava.upay.trade.service.XATransactionServiceFactory;
 import org.openjava.upay.util.ObjectUtils;
 import org.openjava.upay.util.json.JsonUtils;
 import org.slf4j.Logger;
@@ -17,7 +15,6 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.RequestMapping;
 
-import javax.annotation.Resource;
 import javax.servlet.http.HttpServletRequest;
 import javax.servlet.http.HttpServletResponse;
 
@@ -26,9 +23,6 @@ import javax.servlet.http.HttpServletResponse;
 public class PaymentServiceEndpoint extends AbstractServiceEndpoint
 {
     private static Logger LOG = LoggerFactory.getLogger(PaymentServiceEndpoint.class);
-
-    @Resource
-    private XATransactionServiceFactory transactionServiceFactory;
 
     @RequestMapping("/doService.do")
     public void doService(HttpServletRequest request, HttpServletResponse response)
@@ -45,11 +39,15 @@ public class PaymentServiceEndpoint extends AbstractServiceEndpoint
             }
 
             envelop = JsonUtils.fromJsonString(body, MessageEnvelop.class);
-            Merchant merchant = checkAccessPermission(envelop);
-            Transaction transaction = unpackEnvelop(envelop, merchant.getSecretKey(), Transaction.class);
-            transaction.setMerchant(merchant);
-            transaction = transactionServiceFactory.submit(envelop.getPhase(), transaction);
-            message = AjaxMessage.success(transaction.getId());
+            if (ObjectUtils.isEmpty(envelop.getService())) {
+                String service = request.getParameter(Constants.HTTP_PARAM_SERVICE);
+                if (ObjectUtils.isEmpty(service)) {
+                    service = request.getHeader(Constants.HTTP_PARAM_SERVICE);
+                }
+                envelop.setService(service);
+            }
+
+            message = AjaxMessage.success(sendEnvelop(envelop));
         } catch (FundTransactionException fte) {
             LOG.error("Payment service exception", fte);
             message = AjaxMessage.failure(fte.getCode(), fte.getMessage());

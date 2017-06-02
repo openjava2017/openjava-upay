@@ -8,9 +8,11 @@ public enum ErrorCode implements IEnumType
 
     SERVICE_ACCESS_DENIED(1001, "服务访问拒绝"),
 
-    DATA_VERIFY_FAILED(1002, "数据验签失败"),
+    SERVICE_UNAVAILABLE(1002, "服务不可用"),
 
-    DATA_SIGN_FAILED(1003, "数据签名失败"),
+    DATA_VERIFY_FAILED(1003, "数据验签失败"),
+
+    DATA_SIGN_FAILED(1004, "数据签名失败"),
 
     ARGUMENT_MISSED(1010, "系统参数缺失"),
 

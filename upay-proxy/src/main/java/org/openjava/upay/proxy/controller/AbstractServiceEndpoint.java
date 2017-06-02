@@ -7,7 +7,13 @@ import org.openjava.upay.core.type.MerchantStatus;
 import org.openjava.upay.proxy.domain.MessageEnvelop;
 import org.openjava.upay.proxy.exception.PackDataEnvelopException;
 import org.openjava.upay.proxy.exception.UnpackDataEnvelopException;
+import org.openjava.upay.proxy.test.ServiceRequest;
+import org.openjava.upay.proxy.util.Constants;
 import org.openjava.upay.shared.type.ErrorCode;
+import org.openjava.upay.trade.domain.PaymentServiceRequest;
+import org.openjava.upay.trade.service.XATransactionService;
+import org.openjava.upay.trade.service.XATransactionServiceFactory;
+import org.openjava.upay.util.ObjectUtils;
 import org.openjava.upay.util.json.JsonUtils;
 import org.openjava.upay.util.security.HexUtils;
 import org.openjava.upay.util.security.KeyStoreUtils;
@@ -17,6 +23,9 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Value;
 
 import javax.annotation.Resource;
+import java.lang.reflect.Method;
+import java.lang.reflect.ParameterizedType;
+import java.lang.reflect.Type;
 import java.security.PrivateKey;
 import java.security.PublicKey;
 
@@ -28,6 +37,9 @@ public abstract class AbstractServiceEndpoint
 
     @Resource
     private IMerchantService merchantService;
+
+    @Resource
+    private XATransactionServiceFactory transactionServiceFactory;
 
     @Value("${keyStore.path}")
     private String keyStorePath;
@@ -49,47 +61,51 @@ public abstract class AbstractServiceEndpoint
 
     private Object lock = new Object();
 
-    protected final Merchant checkAccessPermission(MessageEnvelop envelop)
+    protected final Object sendEnvelop(MessageEnvelop envelop) throws Exception
     {
-        if (envelop.getAppId() == null) {
-            LOG.error("Argument missed: Merchant Id");
+        if (ObjectUtils.isEmpty(envelop.getService())) {
+            LOG.error("Argument missed: service");
             throw new FundTransactionException(ErrorCode.ARGUMENT_MISSED);
         }
 
-        Merchant merchant = merchantService.findMerchantById(envelop.getAppId());
-        if (merchant == null || merchant.getStatus() != MerchantStatus.NORMAL) {
-            LOG.error("Invalid merchant information");
-            throw new FundTransactionException(ErrorCode.INVALID_MERCHANT);
-        }
-        if (!merchant.getAccessToken().equalsIgnoreCase(envelop.getAccessToken())) {
-            throw new FundTransactionException(ErrorCode.SERVICE_ACCESS_DENIED);
-        }
+        String[] services = envelop.getService().split(Constants.COLON);
+        String serviceId = services[0];
+        String serviceName = services.length > 1 ? services[1] : Constants.DEFAULT_SERVICE_NAME;
+        XATransactionService service = transactionServiceFactory.getTransactionService(serviceId);
 
-        return merchant;
-    }
-
-    protected final <T> T unpackEnvelop(MessageEnvelop envelop, String secretKey, Class<T> type) throws UnpackDataEnvelopException
-    {
+        Method method;
         try {
-            byte[] data = HexUtils.decodeHex(envelop.getBody());
-            byte[] sign = HexUtils.decodeHex(envelop.getSignature());
-
-            PublicKey publicKey = RSACipher.getPublicKey(secretKey);
-            boolean result = RSACipher.verify(data, sign, publicKey);
-            if (!result) {
-                throw new UnpackDataEnvelopException(ErrorCode.DATA_VERIFY_FAILED);
-            }
-
-            String charset = envelop.getCharset() == null ? DEFAULT_CHARSET : envelop.getCharset();
-            String content = new String(data, charset);
-            LOG.debug("unpackEnvelop: " + content);
-
-            return JsonUtils.fromJsonString(content, type);
-        } catch (UnpackDataEnvelopException dex) {
-            throw dex;
-        } catch (Exception ex) {
-            throw new UnpackDataEnvelopException(ErrorCode.UNKNOWN_EXCEPTION, ex);
+            method = service.getClass().getDeclaredMethod(serviceName, ServiceRequest.class);
+        } catch (NoSuchMethodException mex) {
+            LOG.error("Service unavailable, no method found: " + serviceName);
+            throw new FundTransactionException(ErrorCode.SERVICE_UNAVAILABLE);
         }
+        Type[] types = method.getGenericParameterTypes();
+        if (types[0] instanceof Class) { // Sub class of ServiceRequest not supported for now
+            throw new FundTransactionException(ErrorCode.SERVICE_UNAVAILABLE);
+        }
+        ParameterizedType type = (ParameterizedType) types[0];
+        Class<?> dataType = (Class) type.getActualTypeArguments()[0];
+
+        Merchant merchant = checkAccessPermission(envelop);
+
+        byte[] data = HexUtils.decodeHex(envelop.getBody());
+        byte[] sign = HexUtils.decodeHex(envelop.getSignature());
+
+        PublicKey publicKey = RSACipher.getPublicKey(merchant.getSecretKey());
+        boolean result = RSACipher.verify(data, sign, publicKey);
+        if (!result) {
+            throw new UnpackDataEnvelopException(ErrorCode.DATA_VERIFY_FAILED);
+        }
+
+        String charset = envelop.getCharset() == null ? DEFAULT_CHARSET : envelop.getCharset();
+        String content = new String(data, charset);
+        LOG.debug("unpackEnvelop: " + content);
+
+        PaymentServiceRequest request = new PaymentServiceRequest();
+        request.getContext().setMerchant(merchant);
+        request.setData(JsonUtils.fromJsonString(content, dataType));
+        return method.invoke(service, request);
     }
 
     protected final MessageEnvelop packEnvelop(MessageEnvelop template, String content) throws PackDataEnvelopException
@@ -128,6 +144,25 @@ public abstract class AbstractServiceEndpoint
 
 
         return template;
+    }
+
+    private Merchant checkAccessPermission(MessageEnvelop envelop)
+    {
+        if (envelop.getAppId() == null) {
+            LOG.error("Argument missed: Merchant Id");
+            throw new FundTransactionException(ErrorCode.ARGUMENT_MISSED);
+        }
+
+        Merchant merchant = merchantService.findMerchantById(envelop.getAppId());
+        if (merchant == null || merchant.getStatus() != MerchantStatus.NORMAL) {
+            LOG.error("Invalid merchant information");
+            throw new FundTransactionException(ErrorCode.INVALID_MERCHANT);
+        }
+        if (!merchant.getAccessToken().equalsIgnoreCase(envelop.getAccessToken())) {
+            throw new FundTransactionException(ErrorCode.SERVICE_ACCESS_DENIED);
+        }
+
+        return merchant;
     }
 
     private PrivateKey loadPrivateKey() throws Exception

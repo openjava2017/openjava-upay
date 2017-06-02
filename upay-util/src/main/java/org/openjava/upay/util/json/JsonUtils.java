@@ -12,13 +12,9 @@ public class JsonUtils
     static
     {
         registerSerializeConfig("org.openjava.upay.core.type.Pipeline");
-        registerSerializeConfig("org.openjava.upay.trade.type.Phase");
-        registerSerializeConfig("org.openjava.upay.trade.type.TransactionType");
         registerSerializeConfig("org.openjava.upay.trade.type.FeeType");
 
         registerParserConfig("org.openjava.upay.core.type.Pipeline");
-        registerParserConfig("org.openjava.upay.trade.type.Phase");
-        registerParserConfig("org.openjava.upay.trade.type.TransactionType");
         registerParserConfig("org.openjava.upay.trade.type.FeeType");
     }
 
