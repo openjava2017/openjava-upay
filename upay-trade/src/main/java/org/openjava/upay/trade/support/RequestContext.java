@@ -1,8 +1,8 @@
-package org.openjava.upay.trade.domain;
+package org.openjava.upay.trade.support;
 
 import org.openjava.upay.core.model.Merchant;
 
-public class PaymentRequestContext
+public class RequestContext
 {
     private Merchant merchant;
 

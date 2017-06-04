@@ -1,14 +1,14 @@
 package org.openjava.upay.trade.domain;
 
 import org.openjava.upay.core.type.Pipeline;
-import org.openjava.upay.trade.type.TransactionType;
 
 import java.util.List;
 
-public class Transaction
+public class TradeTransaction
 {
     private String serialNo;
-    private Long accountId;
+    private Long fromId;
+    private Long toId;
     private Pipeline pipeline;
     private Long amount;
     private String description;
@@ -25,14 +25,24 @@ public class Transaction
         this.serialNo = serialNo;
     }
 
-    public Long getAccountId()
+    public Long getFromId()
     {
-        return accountId;
+        return fromId;
     }
 
-    public void setAccountId(Long accountId)
+    public void setFromId(Long fromId)
     {
-        this.accountId = accountId;
+        this.fromId = fromId;
+    }
+
+    public Long getToId()
+    {
+        return toId;
+    }
+
+    public void setToId(Long toId)
+    {
+        this.toId = toId;
     }
 
     public Pipeline getPipeline()

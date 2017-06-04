@@ -12,14 +12,18 @@ import org.openjava.upay.core.type.Pipeline;
 import org.openjava.upay.shared.sequence.IKeyGenerator;
 import org.openjava.upay.shared.sequence.ISerialKeyGenerator;
 import org.openjava.upay.shared.sequence.KeyGeneratorManager;
+import org.openjava.upay.shared.sequence.KeyGeneratorManager.SequenceKey;
 import org.openjava.upay.shared.type.ErrorCode;
 import org.openjava.upay.trade.dao.IFundTransactionDao;
 import org.openjava.upay.trade.domain.Fee;
 import org.openjava.upay.trade.domain.Transaction;
+import org.openjava.upay.trade.domain.TransactionId;
 import org.openjava.upay.trade.model.FundTransaction;
 import org.openjava.upay.trade.model.TransactionFee;
+import org.openjava.upay.trade.service.IFeeTransactionService;
 import org.openjava.upay.trade.service.IFundTransactionService;
-import org.openjava.upay.trade.service.XATransactionService;
+import org.openjava.upay.trade.support.AbstractServiceComponent;
+import org.openjava.upay.trade.support.ServiceRequest;
 import org.openjava.upay.trade.type.TransactionStatus;
 import org.openjava.upay.trade.type.TransactionType;
 import org.openjava.upay.util.ObjectUtils;
@@ -32,9 +36,11 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class FeeTransactionServiceImpl implements XATransactionService
+public class FeeTransactionServiceImpl extends AbstractServiceComponent implements IFeeTransactionService
 {
     private static Logger LOG = LoggerFactory.getLogger(FeeTransactionServiceImpl.class);
+
+    private static final String COMPONENT_ID = "payment.service.fee";
 
     @Resource
     private IFundAccountDao fundAccountDao;
@@ -53,25 +59,29 @@ public class FeeTransactionServiceImpl implements XATransactionService
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public Transaction beginTransaction(Transaction transaction) throws Exception
+    public TransactionId submit(ServiceRequest<Transaction> request) throws Exception
     {
         // Arguments check
         Date when = new Date();
-        Merchant merchant = transaction.getMerchant();
+        Transaction transaction = request.getData();
+        Merchant merchant = request.getContext().getMerchant();
 
         FundAccount account = null;
         if (transaction.getPipeline() == Pipeline.ACCOUNT) {
-            if (transaction.getToId() == null) {
+            if (transaction.getAccountId() == null) {
                 LOG.error("Argument missed: Account Id");
                 throw new FundTransactionException(ErrorCode.ARGUMENT_MISSED);
             }
-            account = fundAccountDao.findFundAccountById(transaction.getToId());
+            account = fundAccountDao.findFundAccountById(transaction.getAccountId());
             if (account == null || account.getStatus() == AccountStatus.LOGOFF) {
                 throw new FundTransactionException(ErrorCode.ACCOUNT_NOT_FOUND);
             }
             if (account.getStatus() != AccountStatus.NORMAL) {
                 throw new FundTransactionException(ErrorCode.INVALID_ACCOUNT_STATUS);
             }
+
+            // 缴费使用账户支付需要验证账户状态和密码
+            fundTransactionService.checkPaymentPermission(account, transaction.getPassword());
         }
 
         if (ObjectUtils.isNotEmpty(transaction.getFees())) {
@@ -86,29 +96,31 @@ public class FeeTransactionServiceImpl implements XATransactionService
             throw new FundTransactionException(ErrorCode.ARGUMENT_MISSED);
         }
 
-        IKeyGenerator keyGenerator = keyGeneratorManager.getKeyGenerator(KeyGeneratorManager.SequenceKey.FUND_TRANSACTION);
+        IKeyGenerator keyGenerator = keyGeneratorManager.getKeyGenerator(SequenceKey.FUND_TRANSACTION);
         ISerialKeyGenerator serialKeyGenerator = keyGeneratorManager.getSerialKeyGenerator();
-        transaction.setId(keyGenerator.nextId());
-        transaction.setSerialNo(serialKeyGenerator.nextSerialNo(
-                String.valueOf(getTransactionType().getCode()), TransactionType.class.getSimpleName()));
+        if (transaction.getSerialNo() == null) {
+            transaction.setSerialNo(serialKeyGenerator.nextSerialNo(
+                    String.valueOf(TransactionType.WITHDRAW.getCode()), TransactionType.class.getSimpleName()));
+        }
 
         long accountId = transaction.getPipeline() == Pipeline.ACCOUNT ? account.getId() : 0;
         String accountName = transaction.getPipeline() == Pipeline.ACCOUNT ? account.getName() : null;
         FundTransaction fundTransaction = new FundTransaction();
-        fundTransaction.setId(transaction.getId());
+        fundTransaction.setId(keyGenerator.nextId());
         fundTransaction.setMerchantId(merchant.getId());
         fundTransaction.setSerialNo(transaction.getSerialNo());
-        fundTransaction.setType(getTransactionType());
+        fundTransaction.setType(TransactionType.MAKE_FEE);
         fundTransaction.setToId(accountId);
         fundTransaction.setToName(accountName);
         fundTransaction.setPipeline(transaction.getPipeline());
         fundTransaction.setAmount(transaction.getAmount());
-        fundTransaction.setStatus(TransactionStatus.STATUS_APPLY);
+        fundTransaction.setStatus(TransactionStatus.STATUS_COMPLETED);
         fundTransaction.setDescription(transaction.getDescription());
         fundTransaction.setCreatedTime(when);
         fundTransaction.setModifiedTime(null);
         fundTransactionDao.createFundTransaction(fundTransaction);
 
+        List<TransactionFee> fees = new ArrayList<>();
         for (Fee fee : transaction.getFees()) {
             TransactionFee transactionFee = new TransactionFee();
             transactionFee.setTransactionId(fundTransaction.getId());
@@ -116,46 +128,11 @@ public class FeeTransactionServiceImpl implements XATransactionService
             transactionFee.setType(fee.getType());
             transactionFee.setAmount(fee.getAmount());
             transactionFee.setCreatedTime(when);
+            fees.add(transactionFee);
             fundTransactionDao.createTransactionFee(transactionFee);
         }
 
-        return transaction;
-    }
-
-    @Override
-    @Transactional(rollbackFor = Exception.class)
-    public Transaction commitTransaction(Transaction transaction) throws Exception
-    {
-        Date when = new Date();
-        if (transaction.getId() == null) {
-            LOG.error("Argument missed: transaction Id");
-            throw new FundTransactionException(ErrorCode.ARGUMENT_MISSED);
-        }
-        FundTransaction fundTransaction = fundTransactionDao.findFundTransactionById(transaction.getId());
-        if (fundTransaction == null) {
-            throw new FundTransactionException(ErrorCode.TRANSACTION_NOT_FOUND);
-        }
-        if (fundTransaction.getStatus() == TransactionStatus.STATUS_COMPLETED) {
-            return transaction;
-        }
-        if (fundTransaction.getStatus() != TransactionStatus.STATUS_APPLY) {
-            throw new FundTransactionException(ErrorCode.INVALID_TRANSACTION_STATUS);
-        }
-        if (fundTransaction.getMerchantId() != transaction.getMerchant().getId()) {
-            throw new FundTransactionException(ErrorCode.INVALID_MERCHANT);
-        }
-
-        // 缴费使用账户支付需要验证账户状态和密码
-        if (fundTransaction.getPipeline() == Pipeline.ACCOUNT) {
-            FundAccount account = fundAccountDao.findFundAccountById(fundTransaction.getToId());
-            if (account.getStatus() != AccountStatus.NORMAL) {
-                throw new FundTransactionException(ErrorCode.INVALID_ACCOUNT_STATUS);
-            }
-            fundTransactionService.checkPaymentPermission(account, transaction.getPassword());
-        }
-
         // 处理商户账户-费用收入
-        List<TransactionFee> fees = fundTransactionDao.findFeesByTransactionId(fundTransaction.getId());
         if (ObjectUtils.isNotEmpty(fees)) {
             List<FundActivity> activities = new ArrayList<>();
             for (TransactionFee fee : fees) {
@@ -167,7 +144,7 @@ public class FeeTransactionServiceImpl implements XATransactionService
                 activity.setDescription(fee.getType().getName() + Action.INCOME.getName());
                 activities.add(activity);
             }
-            fundStreamEngine.submit(transaction.getMerchant().getAccountId(), activities.toArray(new FundActivity[0]));
+            fundStreamEngine.submit(merchant.getAccountId(), activities.toArray(new FundActivity[0]));
         }
 
         // 处理个人账户缴费扣款, fee pipeline = transaction pipeline
@@ -182,28 +159,18 @@ public class FeeTransactionServiceImpl implements XATransactionService
                 feeActivity.setDescription(fee.getType().getName() + Action.OUTGO.getName());
                 activities.add(feeActivity);
             }
-            fundStreamEngine.submit(transaction.getToId(), activities.toArray(new FundActivity[0]));
+            fundStreamEngine.submit(transaction.getAccountId(), activities.toArray(new FundActivity[0]));
         }
 
-        //更新事务状态
-        int result = fundTransactionDao.compareAndSetStatus(fundTransaction.getId(), TransactionStatus.STATUS_COMPLETED,
-                TransactionStatus.STATUS_APPLY, when);
-        if (result <= 0) {
-            throw new FundTransactionException(ErrorCode.DATA_CONCURRENT_MODIFY);
-        }
-
-        return transaction;
+        TransactionId transactionId = new TransactionId();
+        transactionId.setId(fundTransaction.getId());
+        transactionId.setSerialNo(fundTransaction.getSerialNo());
+        return transactionId;
     }
 
     @Override
-    public Transaction rollBackTransaction(Transaction transaction) throws Exception
+    public String componentId()
     {
-        return null;
-    }
-
-    @Override
-    public TransactionType getTransactionType()
-    {
-        return TransactionType.MAKE_FEE;
+        return COMPONENT_ID;
     }
 }
