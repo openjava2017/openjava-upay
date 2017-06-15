@@ -1,6 +1,5 @@
-package org.openjava.upay.rpc.payment;
+package org.openjava.upay.proxy.endpoint;
 
-import com.sun.corba.se.spi.orbutil.fsm.Input;
 import org.openjava.upay.rpc.http.ServiceEndpointSupport;
 import org.openjava.upay.util.json.JsonUtils;
 import org.openjava.upay.util.security.HexUtils;
@@ -16,9 +15,9 @@ import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 
-public class PaymentServiceEndpoint extends ServiceEndpointSupport
+public class TestPaymentServiceEndpoint extends ServiceEndpointSupport
 {
-    public void testRechargeAccount(InputStream privateKeyIn, InputStream publicKeyIn) throws Exception
+    public void testRechargeAccount(PrivateKey privateKey, PublicKey publicKey) throws Exception
     {
         Map<String, Object> envelop = new HashMap<>();
         envelop.put("appId", 1001L);
@@ -44,7 +43,6 @@ public class PaymentServiceEndpoint extends ServiceEndpointSupport
         System.out.println(content);
 
         byte[] data = content.getBytes("UTF-8");
-        PrivateKey privateKey = KeyStoreUtils.getPrivateKey(privateKeyIn, "JKS", "abcd1234", "clientkey", "abcd1234");
         byte[] sign = RSACipher.sign(data, privateKey);
 
         envelop.put("body", HexUtils.encodeHexStr(data));
@@ -52,16 +50,27 @@ public class PaymentServiceEndpoint extends ServiceEndpointSupport
 
         Long start = System.currentTimeMillis();
         String json = JsonUtils.toJsonString(envelop);
-        HttpResult result = execute("http://www.diligrp.com:8080/spi/payment/doService.do", null, json);
+        ServiceEndpointSupport.HttpHeader[] headers = new ServiceEndpointSupport.HttpHeader[1];
+        headers[0] = ServiceEndpointSupport.HttpHeader.create("service", "payment.service.recharge");
+        ServiceEndpointSupport.HttpResult result = execute("http://www.diligrp.com:8080/spi/payment/doService.do", headers, json);
         System.out.println(result.responseText);
         Map<String, Object> callBack = JsonUtils.fromJsonString(result.responseText, HashMap.class);
         byte[] body = HexUtils.decodeHex(callBack.get("body").toString());
         byte[] signature = HexUtils.decodeHex(callBack.get("signature").toString());
         System.out.println(new String(body, callBack.get("charset").toString()));
 
-        PublicKey publicKey = KeyStoreUtils.getPublicKey(publicKeyIn, "JKS", "abcd1234", "upaykey");
         RSACipher.verify(body, signature, publicKey);
 
         System.out.println(System.currentTimeMillis() - start);
+    }
+
+    public static void main(String[] args) throws Exception
+    {
+        InputStream privateKeyIn = new FileInputStream("E:\\certification\\client.jks");
+        InputStream publicKeyIn = new FileInputStream("E:\\certification\\upay.jks");
+        PrivateKey privateKey = KeyStoreUtils.getPrivateKey(privateKeyIn, "JKS", "abcd1234", "clientkey", "abcd1234");
+        PublicKey publicKey = KeyStoreUtils.getPublicKey(publicKeyIn, "JKS", "abcd1234", "upaykey");
+        TestPaymentServiceEndpoint endpoint = new TestPaymentServiceEndpoint();
+        endpoint.testRechargeAccount(privateKey, publicKey);
     }
 }

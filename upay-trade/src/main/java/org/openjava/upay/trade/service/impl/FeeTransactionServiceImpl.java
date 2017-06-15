@@ -22,13 +22,15 @@ import org.openjava.upay.trade.model.FundTransaction;
 import org.openjava.upay.trade.model.TransactionFee;
 import org.openjava.upay.trade.service.IFeeTransactionService;
 import org.openjava.upay.trade.service.IFundTransactionService;
-import org.openjava.upay.trade.support.AbstractServiceComponent;
+import org.openjava.upay.trade.support.CallableComponent;
+import org.openjava.upay.trade.support.CallableServiceComponent;
 import org.openjava.upay.trade.support.ServiceRequest;
 import org.openjava.upay.trade.type.TransactionStatus;
 import org.openjava.upay.trade.type.TransactionType;
 import org.openjava.upay.util.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
@@ -36,7 +38,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class FeeTransactionServiceImpl extends AbstractServiceComponent implements IFeeTransactionService
+@CallableComponent({"rollback"})
+@Service("feeTransactionService")
+public class FeeTransactionServiceImpl extends CallableServiceComponent implements IFeeTransactionService
 {
     private static Logger LOG = LoggerFactory.getLogger(FeeTransactionServiceImpl.class);
 

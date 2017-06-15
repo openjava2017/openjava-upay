@@ -6,15 +6,15 @@ import java.lang.reflect.Type;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class AbstractServiceComponent
+public abstract class CallableServiceComponent
 {
     public abstract String componentId();
 
-    public ICallableEndpoint[] scanEndpoints()
+    public ICallableServiceEndpoint[] scanEndpoints()
     {
         // Only scan public methods
         Method[] methods = this.getClass().getMethods();
-        List<ICallableEndpoint> endpoints = new ArrayList<>();
+        List<ICallableServiceEndpoint> endpoints = new ArrayList<>();
 
         for (Method method : methods) {
             Type[] types = method.getGenericParameterTypes();
@@ -24,15 +24,15 @@ public abstract class AbstractServiceComponent
                 if(type.getRawType() == ServiceRequest.class) {
                     // Get class type T in ServiceRequest<T>
                     Class<?> requiredType = (Class) type.getActualTypeArguments()[0];
-                    ICallableEndpoint endpoint = new CallableServiceEndpoint<>(method, requiredType);
+                    ICallableServiceEndpoint endpoint = new CallableServiceEndpoint<>(method, requiredType);
                     endpoints.add(endpoint);
                 }
             }
         }
-        return endpoints.toArray(new ICallableEndpoint[0]);
+        return endpoints.toArray(new ICallableServiceEndpoint[0]);
     }
 
-    private class CallableServiceEndpoint<T> implements ICallableEndpoint<T>
+    private class CallableServiceEndpoint<T> implements ICallableServiceEndpoint<T>
     {
         private Method method;
         // that is T class type in ServiceRequest<T>
@@ -59,7 +59,7 @@ public abstract class AbstractServiceComponent
         @Override
         public Object call(ServiceRequest<T> request) throws Exception
         {
-            return method.invoke(AbstractServiceComponent.this, request);
+            return method.invoke(CallableServiceComponent.this, request);
         }
     }
 }

@@ -1,6 +1,6 @@
 package org.openjava.upay.trade.support;
 
-public interface ICallableEndpoint<T>
+public interface ICallableServiceEndpoint<T>
 {
     String endpointId();
 

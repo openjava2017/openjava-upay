@@ -10777,7 +10777,7 @@
 		 *    $(document).ready( function() {
 		 *      $('#example').dataTable( {
 		 *        "preDrawCallback": function( settings ) {
-		 *          if ( $('#test').val() == 1 ) {
+		 *          if ( $('#endpoint').val() == 1 ) {
 		 *            return false;
 		 *          }
 		 *        }

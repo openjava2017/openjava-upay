@@ -10,7 +10,7 @@ import org.openjava.upay.proxy.exception.PackDataEnvelopException;
 import org.openjava.upay.proxy.exception.UnpackDataEnvelopException;
 import org.openjava.upay.shared.type.ErrorCode;
 import org.openjava.upay.trade.service.IServiceEndpointFactory;
-import org.openjava.upay.trade.support.ICallableEndpoint;
+import org.openjava.upay.trade.support.ICallableServiceEndpoint;
 import org.openjava.upay.trade.support.RequestContext;
 import org.openjava.upay.trade.support.ServiceRequest;
 import org.openjava.upay.util.json.JsonUtils;
@@ -87,8 +87,10 @@ public abstract class AbstractServiceEndpoint
                 throw new UnpackDataEnvelopException(ErrorCode.DATA_VERIFY_FAILED);
             }
 
-            String charset = envelop.getCharset() == null ? Constants.DEFAULT_CHARSET : envelop.getCharset();
-            String content = new String(data, charset);
+            if (envelop.getCharset() == null) {
+                envelop.setCharset(Constants.DEFAULT_CHARSET);
+            }
+            String content = new String(data, envelop.getCharset());
             envelop.setBody(content);
             LOG.debug("unpackEnvelop: " + content);
         } catch (UnpackDataEnvelopException dex) {
@@ -100,7 +102,7 @@ public abstract class AbstractServiceEndpoint
 
     protected final Object sendEnvelop(RequestContext context, MessageEnvelop envelop) throws Exception
     {
-        ICallableEndpoint<?> endpoint = serviceEndpointFactory.getServiceEndpoint(envelop.getService());
+        ICallableServiceEndpoint<?> endpoint = serviceEndpointFactory.getServiceEndpoint(envelop.getService());
         if (endpoint == null) {
             LOG.error("endpoint not found, service unavailable: " + envelop.getService());
             throw new FundTransactionException(ErrorCode.SERVICE_UNAVAILABLE);

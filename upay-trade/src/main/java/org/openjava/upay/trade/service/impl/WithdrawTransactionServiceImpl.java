@@ -22,7 +22,7 @@ import org.openjava.upay.trade.model.FundTransaction;
 import org.openjava.upay.trade.model.TransactionFee;
 import org.openjava.upay.trade.service.IFundTransactionService;
 import org.openjava.upay.trade.service.IWithdrawTransactionService;
-import org.openjava.upay.trade.support.AbstractServiceComponent;
+import org.openjava.upay.trade.support.CallableServiceComponent;
 import org.openjava.upay.trade.support.ServiceRequest;
 import org.openjava.upay.trade.type.TransactionStatus;
 import org.openjava.upay.trade.type.TransactionType;
@@ -38,7 +38,7 @@ import java.util.Date;
 import java.util.List;
 
 @Service("withdrawTransactionService")
-public class WithdrawTransactionServiceImpl extends AbstractServiceComponent implements IWithdrawTransactionService
+public class WithdrawTransactionServiceImpl extends CallableServiceComponent implements IWithdrawTransactionService
 {
     private static Logger LOG = LoggerFactory.getLogger(WithdrawTransactionServiceImpl.class);
 

@@ -21,7 +21,8 @@ import org.openjava.upay.trade.domain.TransactionId;
 import org.openjava.upay.trade.model.FundTransaction;
 import org.openjava.upay.trade.model.TransactionFee;
 import org.openjava.upay.trade.service.IRechargeTransactionService;
-import org.openjava.upay.trade.support.AbstractServiceComponent;
+import org.openjava.upay.trade.support.CallableComponent;
+import org.openjava.upay.trade.support.CallableServiceComponent;
 import org.openjava.upay.trade.support.ServiceRequest;
 import org.openjava.upay.trade.type.TransactionStatus;
 import org.openjava.upay.trade.type.TransactionType;
@@ -36,8 +37,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
+@CallableComponent
 @Service("rechargeTransactionService")
-public class RechargeTransactionServiceImpl extends AbstractServiceComponent implements IRechargeTransactionService
+public class RechargeTransactionServiceImpl extends CallableServiceComponent implements IRechargeTransactionService
 {
     private static final Logger LOG = LoggerFactory.getLogger(RechargeTransactionServiceImpl.class);
 

@@ -20,13 +20,15 @@ import org.openjava.upay.trade.model.FundTransaction;
 import org.openjava.upay.trade.model.TransactionFee;
 import org.openjava.upay.trade.service.IFundTransactionService;
 import org.openjava.upay.trade.service.ITradeTransactionService;
-import org.openjava.upay.trade.support.AbstractServiceComponent;
+import org.openjava.upay.trade.support.CallableComponent;
+import org.openjava.upay.trade.support.CallableServiceComponent;
 import org.openjava.upay.trade.support.ServiceRequest;
 import org.openjava.upay.trade.type.TransactionStatus;
 import org.openjava.upay.trade.type.TransactionType;
 import org.openjava.upay.util.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
@@ -34,7 +36,9 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-public class TradeTransactionServiceImpl extends AbstractServiceComponent implements ITradeTransactionService
+@CallableComponent
+@Service("tradeTransactionService")
+public class TradeTransactionServiceImpl extends CallableServiceComponent implements ITradeTransactionService
 {
     private static Logger LOG = LoggerFactory.getLogger(TradeTransactionServiceImpl.class);
 

@@ -1,11 +1,10 @@
 package org.openjava.upay.trade.service;
 
-import org.openjava.upay.trade.support.AbstractServiceComponent;
-import org.openjava.upay.trade.support.ICallableEndpoint;
+import org.openjava.upay.trade.support.ICallableServiceEndpoint;
 
 public interface IServiceEndpointFactory
 {
-    void registerServiceComponent(AbstractServiceComponent component);
+    void registerCallableServiceEndpoints(Object object, String componentId, String... methods);
 
-    ICallableEndpoint<?> getServiceEndpoint(String service);
+    ICallableServiceEndpoint<?> getServiceEndpoint(String service);
 }
