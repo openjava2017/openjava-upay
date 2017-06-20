@@ -1,6 +1,4 @@
-package org.openjava.upay.trade.support;
-
-import org.openjava.upay.Constants;
+package org.openjava.upay.proxy.util;
 
 import java.lang.annotation.*;
 
@@ -10,7 +8,7 @@ import java.lang.annotation.*;
 @Documented
 public @interface CallableComponent
 {
-    String id();
+    String id() default "";
 
-    String[] methods() default {Constants.DEFAULT_ENDPOINT_ID};
+    String[] methods() default {};
 }

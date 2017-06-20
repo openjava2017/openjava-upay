@@ -1,4 +1,4 @@
-package org.openjava.upay.trade.support;
+package org.openjava.upay.proxy.domain;
 
 public class ServiceRequest<E>
 {

@@ -4,7 +4,7 @@ import org.openjava.upay.core.model.Merchant;
 import org.openjava.upay.trade.domain.Transaction;
 import org.openjava.upay.trade.domain.TransactionId;
 
-public interface IWithdrawTransactionService
+public interface IDepositTransactionService
 {
-    TransactionId withdraw(Merchant merchant, Transaction transaction) throws Exception;
+    TransactionId deposit(Merchant merchant, Transaction transaction) throws Exception;
 }

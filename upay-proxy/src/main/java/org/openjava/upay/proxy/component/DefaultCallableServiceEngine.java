@@ -1,18 +1,16 @@
-package org.openjava.upay.trade.service.impl;
+package org.openjava.upay.proxy.component;
 
 import org.openjava.upay.Constants;
-import org.openjava.upay.trade.service.IServiceEndpointFactory;
-import org.openjava.upay.trade.support.CallableComponent;
-import org.openjava.upay.trade.support.CallableServiceEndpoint;
-import org.openjava.upay.trade.support.ICallableServiceEndpoint;
-import org.openjava.upay.trade.support.ServiceRequest;
+import org.openjava.upay.proxy.domain.CallableServiceEndpoint;
+import org.openjava.upay.proxy.domain.ServiceRequest;
+import org.openjava.upay.proxy.util.CallableComponent;
 import org.openjava.upay.util.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.aop.support.AopUtils;
 import org.springframework.beans.BeansException;
 import org.springframework.beans.factory.config.BeanPostProcessor;
-import org.springframework.stereotype.Service;
+import org.springframework.stereotype.Component;
 
 import java.lang.reflect.Method;
 import java.lang.reflect.ParameterizedType;
@@ -20,23 +18,22 @@ import java.lang.reflect.Type;
 import java.util.Map;
 import java.util.concurrent.ConcurrentHashMap;
 
-@Service("callableServiceEndpointFactory")
-public class CallableServiceEndpointFactory implements IServiceEndpointFactory, BeanPostProcessor
+@Component("callableServiceEndpointFactory")
+public class DefaultCallableServiceEngine implements ICallableServiceEngine, BeanPostProcessor
 {
-    private static Logger LOG = LoggerFactory.getLogger(CallableServiceEndpointFactory.class);
+    private static Logger LOG = LoggerFactory.getLogger(DefaultCallableServiceEngine.class);
 
-    private Map<String, ICallableServiceEndpoint<?>> endpoints = new ConcurrentHashMap();
+    private Map<String, CallableServiceEndpoint<?>> endpoints = new ConcurrentHashMap();
 
     @Override
     public void registerCallableServiceEndpoints(Object object, String componentId, String... methods)
     {
         Class<?> classType = object.getClass();
-        if (methods != null) {
+        if (methods != null && methods.length > 0) {
             for (String name : methods) {
                 try {
                     Method method = classType.getMethod(name, ServiceRequest.class);
                     registerCallableServiceEndpoint(object, componentId, method);
-                    LOG.info("Callable service endpoint {}:{} registered", componentId, name);
                 } catch (NoSuchMethodException mex) {
                     LOG.warn("Callable service endpoint({}:{}) not found" + componentId, name);
                 }
@@ -50,7 +47,6 @@ public class CallableServiceEndpointFactory implements IServiceEndpointFactory, 
                     ParameterizedType type = (ParameterizedType) types[0];
                     if(type.getRawType() == ServiceRequest.class) {
                         registerCallableServiceEndpoint(object, componentId, method);
-                        LOG.info("Callable service endpoint {}:{} registered", componentId, method.getName());
                     }
                 }
             }
@@ -58,7 +54,7 @@ public class CallableServiceEndpointFactory implements IServiceEndpointFactory, 
     }
 
     @Override
-    public ICallableServiceEndpoint<?> getServiceEndpoint(String service)
+    public CallableServiceEndpoint<?> getCallableServiceEndpoint(String service)
     {
         return endpoints.get(service);
     }
@@ -72,9 +68,13 @@ public class CallableServiceEndpointFactory implements IServiceEndpointFactory, 
     @Override
     public Object postProcessAfterInitialization(Object object, String name) throws BeansException
     {
-        Class<?> rawType = AopUtils.isAopProxy(object) ? AopUtils.getTargetClass(object) : object.getClass();
+        // Do not scan AOP proxy object, since we cannot get required type(T in ServiceRequest<T>) from proxy object
+        if (AopUtils.isAopProxy(object)) {
+//            Class<?> rawType = AopUtils.getTargetClass(object);
+            return object;
+        }
 
-        CallableComponent annotation = rawType.getAnnotation(CallableComponent.class);
+        CallableComponent annotation = object.getClass().getAnnotation(CallableComponent.class);
         if (annotation != null) {
             String componentId = annotation.id();
             if (componentId == null) {
@@ -106,11 +106,12 @@ public class CallableServiceEndpointFactory implements IServiceEndpointFactory, 
                 requiredType = (Class) dataType;
             }
 
-            ICallableServiceEndpoint endpoint = CallableServiceEndpoint.create(target, method, requiredType);
+            CallableServiceEndpoint endpoint = CallableServiceEndpoint.create(target, method, requiredType);
             if (ObjectUtils.equals(method.getName(), Constants.DEFAULT_ENDPOINT_ID)) {
                 this.endpoints.put(componentId, endpoint);
             }
             this.endpoints.put(componentId + Constants.COLON + method.getName(), endpoint);
+            LOG.info("Callable service endpoint ({}:{}) registered", componentId, method.getName());
         }
     }
 }

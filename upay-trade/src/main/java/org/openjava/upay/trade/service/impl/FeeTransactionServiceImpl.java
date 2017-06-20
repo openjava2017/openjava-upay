@@ -22,9 +22,6 @@ import org.openjava.upay.trade.model.FundTransaction;
 import org.openjava.upay.trade.model.TransactionFee;
 import org.openjava.upay.trade.service.IFeeTransactionService;
 import org.openjava.upay.trade.service.IFundTransactionService;
-import org.openjava.upay.trade.support.CallableComponent;
-import org.openjava.upay.trade.support.CallableServiceComponent;
-import org.openjava.upay.trade.support.ServiceRequest;
 import org.openjava.upay.trade.type.TransactionStatus;
 import org.openjava.upay.trade.type.TransactionType;
 import org.openjava.upay.util.ObjectUtils;
@@ -38,13 +35,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-@CallableComponent({"rollback"})
 @Service("feeTransactionService")
-public class FeeTransactionServiceImpl extends CallableServiceComponent implements IFeeTransactionService
+public class FeeTransactionServiceImpl implements IFeeTransactionService
 {
     private static Logger LOG = LoggerFactory.getLogger(FeeTransactionServiceImpl.class);
-
-    private static final String COMPONENT_ID = "payment.service.fee";
 
     @Resource
     private IFundAccountDao fundAccountDao;
@@ -63,12 +57,10 @@ public class FeeTransactionServiceImpl extends CallableServiceComponent implemen
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public TransactionId submit(ServiceRequest<Transaction> request) throws Exception
+    public TransactionId makeFee(Merchant merchant, Transaction transaction) throws Exception
     {
         // Arguments check
         Date when = new Date();
-        Transaction transaction = request.getData();
-        Merchant merchant = request.getContext().getMerchant();
 
         FundAccount account = null;
         if (transaction.getPipeline() == Pipeline.ACCOUNT) {
@@ -170,11 +162,5 @@ public class FeeTransactionServiceImpl extends CallableServiceComponent implemen
         transactionId.setId(fundTransaction.getId());
         transactionId.setSerialNo(fundTransaction.getSerialNo());
         return transactionId;
-    }
-
-    @Override
-    public String componentId()
-    {
-        return COMPONENT_ID;
     }
 }

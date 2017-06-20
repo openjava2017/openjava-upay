@@ -21,7 +21,6 @@ public class TestPaymentServiceEndpoint extends ServiceEndpointSupport
     {
         Map<String, Object> envelop = new HashMap<>();
         envelop.put("appId", 1001L);
-        envelop.put("phase", 1);
         envelop.put("accessToken", "7C748624D08243F2BF741CEAD455B8AC");
         envelop.put("charset", "UTF-8");
 
@@ -29,7 +28,7 @@ public class TestPaymentServiceEndpoint extends ServiceEndpointSupport
         transaction.put("type", 10);
         transaction.put("amount", 1000L);
         transaction.put("pipeline", 1);
-        transaction.put("toId", 2L);
+        transaction.put("accountId", 2L);
         transaction.put("description", "Recharge");
 
         Map<String, Object> fee = new HashMap<>();
@@ -51,7 +50,7 @@ public class TestPaymentServiceEndpoint extends ServiceEndpointSupport
         Long start = System.currentTimeMillis();
         String json = JsonUtils.toJsonString(envelop);
         ServiceEndpointSupport.HttpHeader[] headers = new ServiceEndpointSupport.HttpHeader[1];
-        headers[0] = ServiceEndpointSupport.HttpHeader.create("service", "payment.service.recharge");
+        headers[0] = ServiceEndpointSupport.HttpHeader.create("service", "payment.service.account:deposit");
         ServiceEndpointSupport.HttpResult result = execute("http://www.diligrp.com:8080/spi/payment/doService.do", headers, json);
         System.out.println(result.responseText);
         Map<String, Object> callBack = JsonUtils.fromJsonString(result.responseText, HashMap.class);

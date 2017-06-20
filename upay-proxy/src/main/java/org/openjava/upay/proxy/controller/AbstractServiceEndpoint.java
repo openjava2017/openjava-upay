@@ -1,18 +1,15 @@
 package org.openjava.upay.proxy.controller;
 
 import org.openjava.upay.Constants;
-import org.openjava.upay.core.exception.FundTransactionException;
 import org.openjava.upay.core.model.Merchant;
 import org.openjava.upay.core.service.IMerchantService;
 import org.openjava.upay.core.type.MerchantStatus;
-import org.openjava.upay.proxy.domain.MessageEnvelop;
+import org.openjava.upay.proxy.component.ICallableServiceEngine;
+import org.openjava.upay.proxy.domain.*;
 import org.openjava.upay.proxy.exception.PackDataEnvelopException;
+import org.openjava.upay.proxy.exception.ServiceAccessException;
 import org.openjava.upay.proxy.exception.UnpackDataEnvelopException;
 import org.openjava.upay.shared.type.ErrorCode;
-import org.openjava.upay.trade.service.IServiceEndpointFactory;
-import org.openjava.upay.trade.support.ICallableServiceEndpoint;
-import org.openjava.upay.trade.support.RequestContext;
-import org.openjava.upay.trade.support.ServiceRequest;
 import org.openjava.upay.util.json.JsonUtils;
 import org.openjava.upay.util.security.HexUtils;
 import org.openjava.upay.util.security.KeyStoreUtils;
@@ -37,7 +34,7 @@ public abstract class AbstractServiceEndpoint
     private IMerchantService merchantService;
 
     @Resource
-    private IServiceEndpointFactory serviceEndpointFactory;
+    private ICallableServiceEngine callableServiceEngine;
 
     @Value("${keyStore.path}")
     private String keyStorePath;
@@ -58,16 +55,16 @@ public abstract class AbstractServiceEndpoint
     {
         if (envelop.getAppId() == null) {
             LOG.error("Argument missed: Merchant Id");
-            throw new FundTransactionException(ErrorCode.ARGUMENT_MISSED);
+            throw new ServiceAccessException(ErrorCode.ARGUMENT_MISSED);
         }
 
         Merchant merchant = merchantService.findMerchantById(envelop.getAppId());
         if (merchant == null || merchant.getStatus() != MerchantStatus.NORMAL) {
             LOG.error("Invalid merchant information");
-            throw new FundTransactionException(ErrorCode.INVALID_MERCHANT);
+            throw new ServiceAccessException(ErrorCode.INVALID_MERCHANT);
         }
         if (!merchant.getAccessToken().equalsIgnoreCase(envelop.getAccessToken())) {
-            throw new FundTransactionException(ErrorCode.SERVICE_ACCESS_DENIED);
+            throw new ServiceAccessException(ErrorCode.SERVICE_ACCESS_DENIED);
         }
 
         RequestContext context = new RequestContext();
@@ -100,27 +97,35 @@ public abstract class AbstractServiceEndpoint
         }
     }
 
-    protected final Object sendEnvelop(RequestContext context, MessageEnvelop envelop) throws Exception
+    protected final ServiceResponse<?> sendEnvelop(RequestContext context, MessageEnvelop envelop) throws Exception
     {
-        ICallableServiceEndpoint<?> endpoint = serviceEndpointFactory.getServiceEndpoint(envelop.getService());
+        CallableServiceEndpoint<?> endpoint = callableServiceEngine.getCallableServiceEndpoint(envelop.getService());
         if (endpoint == null) {
-            LOG.error("endpoint not found, service unavailable: " + envelop.getService());
-            throw new FundTransactionException(ErrorCode.SERVICE_UNAVAILABLE);
+            LOG.error("Callable service endpoint not found: " + envelop.getService());
+            throw new ServiceAccessException(ErrorCode.SERVICE_UNAVAILABLE);
         }
 
         ServiceRequest request = new ServiceRequest();
         request.setContext(context);
         request.setData(JsonUtils.fromJsonString(envelop.getBody(), endpoint.getRequiredType()));
-        return endpoint.call(request);
+
+        Object result = endpoint.call(request);
+        if (result instanceof ServiceResponse) {
+            return (ServiceResponse) result;
+        } else {
+            return ServiceResponse.success(result);
+        }
     }
 
     protected final MessageEnvelop packEnvelop(MessageEnvelop template, String content) throws PackDataEnvelopException
     {
         try {
-            String charset = template.getCharset() == null ? Constants.DEFAULT_CHARSET : template.getCharset();
             LOG.debug("packEnvelop: " + content);
+            if (template.getCharset() == null) {
+                template.setCharset(Constants.DEFAULT_CHARSET);
+            }
 
-            byte[] data = content.getBytes(charset);
+            byte[] data = content.getBytes(template.getCharset());
             template.setBody(HexUtils.encodeHexStr(data));
             try {
                 byte[] sign = RSACipher.sign(data, loadPrivateKey());
@@ -130,26 +135,10 @@ public abstract class AbstractServiceEndpoint
             }
             return template;
         } catch (PackDataEnvelopException dex) {
-            throw  dex;
+            throw dex;
         } catch (Exception ex) {
             throw new PackDataEnvelopException(ErrorCode.UNKNOWN_EXCEPTION, ex);
         }
-    }
-
-    protected MessageEnvelop noSignPackEnvelop(MessageEnvelop template, String content)
-    {
-        String charset = template.getCharset() == null ? Constants.DEFAULT_CHARSET : template.getCharset();
-        LOG.debug("createEmptyEnvelop: " + content);
-        try {
-            byte[] data = content.getBytes(charset);
-            template.setBody(HexUtils.encodeHexStr(data));
-        } catch (Exception ex) {
-            template.setBody("{}");
-            LOG.error("noSignPackEnvelop exception", ex);
-        }
-
-
-        return template;
     }
 
     private PrivateKey loadPrivateKey() throws Exception

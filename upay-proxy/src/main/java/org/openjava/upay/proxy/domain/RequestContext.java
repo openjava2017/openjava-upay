@@ -1,8 +1,10 @@
-package org.openjava.upay.trade.support;
+package org.openjava.upay.proxy.domain;
 
 import org.openjava.upay.core.model.Merchant;
 
-public class RequestContext
+import java.util.HashMap;
+
+public class RequestContext extends HashMap<String, Object>
 {
     private Merchant merchant;
 

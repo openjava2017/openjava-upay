@@ -20,10 +20,7 @@ import org.openjava.upay.trade.domain.Transaction;
 import org.openjava.upay.trade.domain.TransactionId;
 import org.openjava.upay.trade.model.FundTransaction;
 import org.openjava.upay.trade.model.TransactionFee;
-import org.openjava.upay.trade.service.IRechargeTransactionService;
-import org.openjava.upay.trade.support.CallableComponent;
-import org.openjava.upay.trade.support.CallableServiceComponent;
-import org.openjava.upay.trade.support.ServiceRequest;
+import org.openjava.upay.trade.service.IDepositTransactionService;
 import org.openjava.upay.trade.type.TransactionStatus;
 import org.openjava.upay.trade.type.TransactionType;
 import org.openjava.upay.util.ObjectUtils;
@@ -37,13 +34,10 @@ import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
-@CallableComponent
-@Service("rechargeTransactionService")
-public class RechargeTransactionServiceImpl extends CallableServiceComponent implements IRechargeTransactionService
+@Service("depositTransactionService")
+public class DepositTransactionServiceImpl implements IDepositTransactionService
 {
-    private static final Logger LOG = LoggerFactory.getLogger(RechargeTransactionServiceImpl.class);
-
-    private static final String COMPONENT_ID = "payment.service.recharge";
+    private static final Logger LOG = LoggerFactory.getLogger(DepositTransactionServiceImpl.class);
 
     @Resource
     private KeyGeneratorManager keyGeneratorManager;
@@ -59,12 +53,10 @@ public class RechargeTransactionServiceImpl extends CallableServiceComponent imp
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public TransactionId submit(ServiceRequest<Transaction> request) throws Exception
+    public TransactionId deposit(Merchant merchant, Transaction transaction) throws Exception
     {
         // Arguments check
         Date when = new Date();
-        Transaction transaction = request.getData();
-        Merchant merchant = request.getContext().getMerchant();
 
         // 充值只支持现金和POS
         if (transaction.getPipeline() != Pipeline.CASH && transaction.getPipeline() != Pipeline.POS) {
@@ -169,11 +161,5 @@ public class RechargeTransactionServiceImpl extends CallableServiceComponent imp
         transactionId.setId(fundTransaction.getId());
         transactionId.setSerialNo(fundTransaction.getSerialNo());
         return transactionId;
-    }
-
-    @Override
-    public String componentId()
-    {
-        return COMPONENT_ID;
     }
 }

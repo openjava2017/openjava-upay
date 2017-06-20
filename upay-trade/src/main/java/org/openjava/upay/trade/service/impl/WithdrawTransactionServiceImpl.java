@@ -22,8 +22,6 @@ import org.openjava.upay.trade.model.FundTransaction;
 import org.openjava.upay.trade.model.TransactionFee;
 import org.openjava.upay.trade.service.IFundTransactionService;
 import org.openjava.upay.trade.service.IWithdrawTransactionService;
-import org.openjava.upay.trade.support.CallableServiceComponent;
-import org.openjava.upay.trade.support.ServiceRequest;
 import org.openjava.upay.trade.type.TransactionStatus;
 import org.openjava.upay.trade.type.TransactionType;
 import org.openjava.upay.util.ObjectUtils;
@@ -38,11 +36,9 @@ import java.util.Date;
 import java.util.List;
 
 @Service("withdrawTransactionService")
-public class WithdrawTransactionServiceImpl extends CallableServiceComponent implements IWithdrawTransactionService
+public class WithdrawTransactionServiceImpl implements IWithdrawTransactionService
 {
     private static Logger LOG = LoggerFactory.getLogger(WithdrawTransactionServiceImpl.class);
-
-    private static final String COMPONENT_ID = "payment.service.withdraw";
 
     @Resource
     private KeyGeneratorManager keyGeneratorManager;
@@ -61,12 +57,10 @@ public class WithdrawTransactionServiceImpl extends CallableServiceComponent imp
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public TransactionId submit(ServiceRequest<Transaction> request) throws Exception
+    public TransactionId withdraw(Merchant merchant, Transaction transaction) throws Exception
     {
         // Arguments check
         Date when = new Date();
-        Transaction transaction = request.getData();
-        Merchant merchant = request.getContext().getMerchant();
 
         // 提现只支持现金
         if (transaction.getPipeline() != Pipeline.CASH) {
@@ -176,11 +170,5 @@ public class WithdrawTransactionServiceImpl extends CallableServiceComponent imp
         transactionId.setId(fundTransaction.getId());
         transactionId.setSerialNo(fundTransaction.getSerialNo());
         return transactionId;
-    }
-
-    @Override
-    public String componentId()
-    {
-        return COMPONENT_ID;
     }
 }

@@ -8,6 +8,7 @@ public class MessageEnvelop
     private String signature;
     private String body;
     private String charset;
+    private Integer status = 0;
 
     public Long getAppId()
     {
@@ -67,5 +68,15 @@ public class MessageEnvelop
     public void setCharset(String charset)
     {
         this.charset = charset;
+    }
+
+    public Integer getStatus()
+    {
+        return status;
+    }
+
+    public void setStatus(Integer status)
+    {
+        this.status = status;
     }
 }
