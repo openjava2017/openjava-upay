@@ -1,9 +1,8 @@
 package org.openjava.upay.trade.service.impl;
 
-import org.openjava.upay.core.dao.IFundAccountDao;
 import org.openjava.upay.core.exception.FundTransactionException;
 import org.openjava.upay.core.model.FundAccount;
-import org.openjava.upay.core.type.AccountStatus;
+import org.openjava.upay.core.service.IFundAccountService;
 import org.openjava.upay.shared.redis.IRedisSystemService;
 import org.openjava.upay.shared.type.ErrorCode;
 import org.openjava.upay.trade.service.IFundTransactionService;
@@ -24,7 +23,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService
     private static final int MAX_PASSWORD_ERRORS = 3;
 
     @Resource
-    private IFundAccountDao fundAccountDao;
+    private IFundAccountService fundAccountService;
 
     @Resource
     private IRedisSystemService redisSystemService;
@@ -39,12 +38,18 @@ public class FundTransactionServiceImpl implements IFundTransactionService
             long expiredInSec = TimeUnit.DAYS.toSeconds(2);
             long errors = redisSystemService.incAndGet(errorsDailyKey, (int) expiredInSec);
             if (errors >= MAX_PASSWORD_ERRORS) {
-                fundAccountDao.updateAccountLockStatus(account.getId(), AccountStatus.LOCKED, when);
+                fundAccountService.lockFundAccount(account.getId(), when);
             }
 
-            throw MAX_PASSWORD_ERRORS - errors == 1 ?
-                    new FundTransactionException("账户密码错误, 再错误一次将锁定账户", ErrorCode.INVALID_ACCOUNT_PASSWORD.getCode()) :
-                    new FundTransactionException(ErrorCode.INVALID_ACCOUNT_PASSWORD);
+            if (MAX_PASSWORD_ERRORS - errors > 1) {
+                throw new FundTransactionException(ErrorCode.INVALID_ACCOUNT_PASSWORD);
+            } else if (MAX_PASSWORD_ERRORS - errors == 1) {
+                throw new FundTransactionException("账户密码错误, 再错误一次将锁定账户",
+                    ErrorCode.INVALID_ACCOUNT_PASSWORD.getCode());
+            } else {
+                throw new FundTransactionException("账户密码错误, 已锁定账户",
+                    ErrorCode.INVALID_ACCOUNT_PASSWORD.getCode());
+            }
         }
         redisSystemService.remove(errorsDailyKey);
     }

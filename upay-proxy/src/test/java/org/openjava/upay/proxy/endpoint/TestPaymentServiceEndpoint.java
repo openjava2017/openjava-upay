@@ -17,7 +17,7 @@ import java.util.Map;
 
 public class TestPaymentServiceEndpoint extends ServiceEndpointSupport
 {
-    public void testRechargeAccount(PrivateKey privateKey, PublicKey publicKey) throws Exception
+    public void testDepositAccount(PrivateKey privateKey, PublicKey publicKey) throws Exception
     {
         Map<String, Object> envelop = new HashMap<>();
         envelop.put("appId", 1001L);
@@ -25,7 +25,6 @@ public class TestPaymentServiceEndpoint extends ServiceEndpointSupport
         envelop.put("charset", "UTF-8");
 
         Map<String, Object> transaction = new HashMap<>();
-        transaction.put("type", 10);
         transaction.put("amount", 1000L);
         transaction.put("pipeline", 1);
         transaction.put("accountId", 2L);
@@ -59,7 +58,51 @@ public class TestPaymentServiceEndpoint extends ServiceEndpointSupport
         System.out.println(new String(body, callBack.get("charset").toString()));
 
         RSACipher.verify(body, signature, publicKey);
+        System.out.println(System.currentTimeMillis() - start);
+    }
 
+    public void testWithdrawAccount(PrivateKey privateKey, PublicKey publicKey) throws Exception
+    {
+        Map<String, Object> envelop = new HashMap<>();
+        envelop.put("appId", 1001L);
+        envelop.put("accessToken", "7C748624D08243F2BF741CEAD455B8AC");
+        envelop.put("charset", "UTF-8");
+
+        Map<String, Object> transaction = new HashMap<>();
+        transaction.put("amount", 1000L);
+        transaction.put("pipeline", 1);
+        transaction.put("accountId", 2L);
+        transaction.put("password", "abcd1234");
+        transaction.put("description", "Withdraw");
+
+        Map<String, Object> fee = new HashMap<>();
+        fee.put("type", 1);
+        fee.put("pipeline", 2);
+        fee.put("amount", 100L);
+        List<Map<String, Object>> fees = new ArrayList<>();
+        fees.add(fee);
+        transaction.put("fees", fees);
+        String content = JsonUtils.toJsonString(transaction);
+        System.out.println(content);
+
+        byte[] data = content.getBytes("UTF-8");
+        byte[] sign = RSACipher.sign(data, privateKey);
+
+        envelop.put("body", HexUtils.encodeHexStr(data));
+        envelop.put("signature", HexUtils.encodeHexStr(sign));
+
+        Long start = System.currentTimeMillis();
+        String json = JsonUtils.toJsonString(envelop);
+        ServiceEndpointSupport.HttpHeader[] headers = new ServiceEndpointSupport.HttpHeader[1];
+        headers[0] = ServiceEndpointSupport.HttpHeader.create("service", "payment.service.account:withdraw");
+        ServiceEndpointSupport.HttpResult result = execute("http://www.diligrp.com:8080/spi/payment/doService.do", headers, json);
+        System.out.println(result.responseText);
+        Map<String, Object> callBack = JsonUtils.fromJsonString(result.responseText, HashMap.class);
+        byte[] body = HexUtils.decodeHex(callBack.get("body").toString());
+        byte[] signature = HexUtils.decodeHex(callBack.get("signature").toString());
+        System.out.println(new String(body, callBack.get("charset").toString()));
+
+        RSACipher.verify(body, signature, publicKey);
         System.out.println(System.currentTimeMillis() - start);
     }
 
@@ -70,6 +113,6 @@ public class TestPaymentServiceEndpoint extends ServiceEndpointSupport
         PrivateKey privateKey = KeyStoreUtils.getPrivateKey(privateKeyIn, "JKS", "abcd1234", "clientkey", "abcd1234");
         PublicKey publicKey = KeyStoreUtils.getPublicKey(publicKeyIn, "JKS", "abcd1234", "upaykey");
         TestPaymentServiceEndpoint endpoint = new TestPaymentServiceEndpoint();
-        endpoint.testRechargeAccount(privateKey, publicKey);
+        endpoint.testWithdrawAccount(privateKey, publicKey);
     }
 }

@@ -6,6 +6,10 @@ public class PasswordUtils
 
     public static String encrypt(String password, String secretKey) throws Exception
     {
+        if (password == null) {
+            return null;
+        }
+
         byte[] data = password.getBytes(CHARSET);
         AESCipher.encrypt(data, secretKey);
         return HexUtils.encodeHexStr(SHACipher.encrypt(AESCipher.encrypt(data, secretKey)));

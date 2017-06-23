@@ -7,7 +7,6 @@ import org.openjava.upay.core.model.FundAccount;
 import org.openjava.upay.core.model.Merchant;
 import org.openjava.upay.core.service.IFundStreamEngine;
 import org.openjava.upay.core.type.AccountStatus;
-import org.openjava.upay.core.type.Action;
 import org.openjava.upay.core.type.Pipeline;
 import org.openjava.upay.shared.sequence.IKeyGenerator;
 import org.openjava.upay.shared.sequence.ISerialKeyGenerator;
@@ -24,6 +23,7 @@ import org.openjava.upay.trade.service.IFeeTransactionService;
 import org.openjava.upay.trade.service.IFundTransactionService;
 import org.openjava.upay.trade.type.TransactionStatus;
 import org.openjava.upay.trade.type.TransactionType;
+import org.openjava.upay.trade.util.TransactionServiceHelper;
 import org.openjava.upay.util.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -31,7 +31,6 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 
@@ -62,6 +61,21 @@ public class FeeTransactionServiceImpl implements IFeeTransactionService
         // Arguments check
         Date when = new Date();
 
+        if (ObjectUtils.isEmpty(transaction.getFees())) {
+            LOG.error("Argument missed: fees");
+            throw new FundTransactionException(ErrorCode.ARGUMENT_MISSED);
+        }
+        if (!TransactionServiceHelper.validFeePipeline(transaction.getFees())) {
+            LOG.error("Only CASH or ACCOUNT pipeline supported for transaction fee");
+            throw new FundTransactionException(ErrorCode.INVALID_ARGUMENT);
+        }
+        for (Fee fee : transaction.getFees()) {
+            if (fee.getPipeline() == transaction.getPipeline()) {
+                LOG.error("Fee pipeline != transaction pipeline");
+                throw new FundTransactionException(ErrorCode.INVALID_ARGUMENT);
+            }
+        }
+
         FundAccount account = null;
         if (transaction.getPipeline() == Pipeline.ACCOUNT) {
             if (transaction.getAccountId() == null) {
@@ -80,23 +94,11 @@ public class FeeTransactionServiceImpl implements IFeeTransactionService
             fundTransactionService.checkPaymentPermission(account, transaction.getPassword());
         }
 
-        if (ObjectUtils.isNotEmpty(transaction.getFees())) {
-            for (Fee fee : transaction.getFees()) {
-                if (fee.getPipeline() == transaction.getPipeline()) {
-                    LOG.error("Fee pipeline != transaction pipeline");
-                    throw new FundTransactionException(ErrorCode.INVALID_ARGUMENT);
-                }
-            }
-        } else {
-            LOG.error("Argument missed: fees");
-            throw new FundTransactionException(ErrorCode.ARGUMENT_MISSED);
-        }
-
         IKeyGenerator keyGenerator = keyGeneratorManager.getKeyGenerator(SequenceKey.FUND_TRANSACTION);
         ISerialKeyGenerator serialKeyGenerator = keyGeneratorManager.getSerialKeyGenerator();
         if (transaction.getSerialNo() == null) {
             transaction.setSerialNo(serialKeyGenerator.nextSerialNo(
-                    String.valueOf(TransactionType.WITHDRAW.getCode()), TransactionType.class.getSimpleName()));
+                String.valueOf(TransactionType.WITHDRAW.getCode()), TransactionType.class.getSimpleName()));
         }
 
         long accountId = transaction.getPipeline() == Pipeline.ACCOUNT ? account.getId() : 0;
@@ -116,46 +118,24 @@ public class FeeTransactionServiceImpl implements IFeeTransactionService
         fundTransaction.setModifiedTime(null);
         fundTransactionDao.createFundTransaction(fundTransaction);
 
-        List<TransactionFee> fees = new ArrayList<>();
-        for (Fee fee : transaction.getFees()) {
-            TransactionFee transactionFee = new TransactionFee();
-            transactionFee.setTransactionId(fundTransaction.getId());
-            transactionFee.setPipeline(fee.getPipeline());
-            transactionFee.setType(fee.getType());
-            transactionFee.setAmount(fee.getAmount());
-            transactionFee.setCreatedTime(when);
-            fees.add(transactionFee);
-            fundTransactionDao.createTransactionFee(transactionFee);
+        List<TransactionFee> fees = TransactionServiceHelper.wrapTransactionFees(
+            fundTransaction.getId(), transaction.getFees(), when);
+        for (TransactionFee fee : fees) {
+            fundTransactionDao.createTransactionFee(fee);
         }
 
         // 处理商户账户-费用收入
-        if (ObjectUtils.isNotEmpty(fees)) {
-            List<FundActivity> activities = new ArrayList<>();
-            for (TransactionFee fee : fees) {
-                FundActivity activity = new FundActivity();
-                activity.setTransactionId(fee.getTransactionId());
-                activity.setPipeline(fee.getPipeline());
-                activity.setAction(Action.INCOME);
-                activity.setAmount(fee.getAmount());
-                activity.setDescription(fee.getType().getName() + Action.INCOME.getName());
-                activities.add(activity);
-            }
-            fundStreamEngine.submit(merchant.getAccountId(), activities.toArray(new FundActivity[0]));
+        List<FundActivity> merActivities = TransactionServiceHelper.wrapFeeActivitiesForMer(fees);
+        if (ObjectUtils.isNotEmpty(merActivities)) {
+            fundStreamEngine.submit(merchant.getAccountId(), merActivities.toArray(new FundActivity[0]));
         }
 
         // 处理个人账户缴费扣款, fee pipeline = transaction pipeline
         if (transaction.getPipeline() == Pipeline.ACCOUNT) {
-            List<FundActivity> activities = new ArrayList<>();
-            for (TransactionFee fee : fees) {
-                FundActivity feeActivity = new FundActivity();
-                feeActivity.setTransactionId(fee.getTransactionId());
-                feeActivity.setPipeline(fee.getPipeline());
-                feeActivity.setAction(Action.OUTGO);
-                feeActivity.setAmount(fee.getAmount());
-                feeActivity.setDescription(fee.getType().getName() + Action.OUTGO.getName());
-                activities.add(feeActivity);
+            List<FundActivity> accountActivities = TransactionServiceHelper.wrapFeeActivitiesForAccount(fees);
+            if (ObjectUtils.isNotEmpty(accountActivities)) {
+                fundStreamEngine.submit(fundTransaction.getToId(), accountActivities.toArray(new FundActivity[0]));
             }
-            fundStreamEngine.submit(transaction.getAccountId(), activities.toArray(new FundActivity[0]));
         }
 
         TransactionId transactionId = new TransactionId();

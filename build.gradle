@@ -42,7 +42,11 @@ subprojects {
 
     processResources {
         from(sourceSets.main.resources.srcDirs) {
+            exclude '**/*.jks'
             filter(org.apache.tools.ant.filters.ReplaceTokens, tokens: loadGroovyConfig())
+        }
+        from(sourceSets.main.resources.srcDirs) {
+            include '**/*.jks'
         }
     }
 

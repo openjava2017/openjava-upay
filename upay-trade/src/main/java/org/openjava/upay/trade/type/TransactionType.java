@@ -4,7 +4,7 @@ import org.openjava.upay.util.type.IEnumType;
 
 public enum TransactionType implements IEnumType
 {
-    RECHARGE("充值", 10),
+    DEPOSIT("充值", 10),
 
     WITHDRAW("提现", 11),
 
