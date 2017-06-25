@@ -29,53 +29,44 @@ public abstract class TransactionServiceHelper
     public static List<TransactionFee> wrapTransactionFees(Long transactionId, List<Fee> fees, Date when)
     {
         List<TransactionFee> feeList = new ArrayList<>();
-        if (ObjectUtils.isNotEmpty(fees)) {
-            for (Fee fee : fees) {
-                TransactionFee transactionFee = new TransactionFee();
-                transactionFee.setTransactionId(transactionId);
-                transactionFee.setPipeline(fee.getPipeline());
-                transactionFee.setType(fee.getType());
-                transactionFee.setAmount(fee.getAmount());
-                transactionFee.setCreatedTime(when);
-                feeList.add(transactionFee);
-            }
+        for (Fee fee : fees) {
+            TransactionFee transactionFee = new TransactionFee();
+            transactionFee.setTransactionId(transactionId);
+            transactionFee.setPipeline(fee.getPipeline());
+            transactionFee.setType(fee.getType());
+            transactionFee.setAmount(fee.getAmount());
+            transactionFee.setCreatedTime(when);
+            feeList.add(transactionFee);
         }
-
         return feeList;
     }
 
-    public static List<FundActivity> wrapFeeActivitiesForAccount(List<TransactionFee> fees)
+    public static void wrapFeeActivitiesForAccount(List<FundActivity> activities, List<TransactionFee> fees)
     {
-        List<FundActivity> activities = new ArrayList<>();
-        if (ObjectUtils.isNotEmpty(fees)) {
-            for (TransactionFee fee : fees) {
-                if (fee.getPipeline() == Pipeline.ACCOUNT) { //费用支出通过账户扣减方式
-                    FundActivity feeActivity = new FundActivity();
-                    feeActivity.setTransactionId(fee.getTransactionId());
-                    feeActivity.setPipeline(fee.getPipeline());
-                    feeActivity.setAction(Action.OUTGO);
-                    feeActivity.setAmount(fee.getAmount());
-                    feeActivity.setDescription(fee.getType().getName() + Action.OUTGO.getName());
-                    activities.add(feeActivity);
-                }
+        for (TransactionFee fee : fees) {
+            if (fee.getPipeline() == Pipeline.ACCOUNT) { //费用支出通过账户扣减方式
+                FundActivity feeActivity = new FundActivity();
+                feeActivity.setTransactionId(fee.getTransactionId());
+                feeActivity.setPipeline(fee.getPipeline());
+                feeActivity.setAction(Action.OUTGO);
+                feeActivity.setAmount(fee.getAmount());
+                feeActivity.setDescription(fee.getType().getName() + Action.OUTGO.getName());
+                activities.add(feeActivity);
             }
         }
-        return activities;
     }
 
     public static List<FundActivity> wrapFeeActivitiesForMer(List<TransactionFee> fees)
     {
         List<FundActivity> activities = new ArrayList<>();
-        if (ObjectUtils.isNotEmpty(fees)) {
-            for (TransactionFee fee : fees) {
-                FundActivity feeActivity = new FundActivity();
-                feeActivity.setTransactionId(fee.getTransactionId());
-                feeActivity.setPipeline(fee.getPipeline());
-                feeActivity.setAction(Action.INCOME);
-                feeActivity.setAmount(fee.getAmount());
-                feeActivity.setDescription(fee.getType().getName() + Action.INCOME.getName());
-                activities.add(feeActivity);
-            }
+        for (TransactionFee fee : fees) {
+            FundActivity feeActivity = new FundActivity();
+            feeActivity.setTransactionId(fee.getTransactionId());
+            feeActivity.setPipeline(fee.getPipeline());
+            feeActivity.setAction(Action.INCOME);
+            feeActivity.setAmount(fee.getAmount());
+            feeActivity.setDescription(fee.getType().getName() + Action.INCOME.getName());
+            activities.add(feeActivity);
         }
         return activities;
     }

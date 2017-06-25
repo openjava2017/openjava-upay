@@ -53,10 +53,10 @@ public class AccountServiceComponent
         }
     }
 
-    public ServiceResponse<TransactionId> makeFee(ServiceRequest<Transaction> request) throws Exception
+    public ServiceResponse<TransactionId> payFees(ServiceRequest<Transaction> request) throws Exception
     {
         try {
-            TransactionId result = feeTransactionService.makeFee(
+            TransactionId result = feeTransactionService.payFees(
                     request.getContext().getMerchant(), request.getData());
             return ServiceResponse.success(result);
         } catch (FundTransactionException fex) {

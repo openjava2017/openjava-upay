@@ -10,7 +10,7 @@ public enum TransactionType implements IEnumType
 
     TRADE("交易", 12),
 
-    MAKE_FEE("缴费", 14);
+    PAY_FEE("缴费", 14);
 
     private String name;
     private int code;

@@ -73,7 +73,7 @@ public class TradeTransactionServiceImpl implements ITradeTransactionService
         if (ObjectUtils.isNotEmpty(transaction.getFees())) {
             for (Fee fee : transaction.getFees()) {
                 if (fee.getPipeline() != Pipeline.ACCOUNT) {
-                    LOG.error("Only CASH or ACCOUNT pipeline supported for transaction fee");
+                    LOG.error("Only ACCOUNT pipeline supported for trade transaction fee");
                     throw new FundTransactionException(ErrorCode.INVALID_ARGUMENT);
                 }
             }
@@ -102,7 +102,6 @@ public class TradeTransactionServiceImpl implements ITradeTransactionService
 
         // 验证买家账户状态和密码
         fundTransactionService.checkPaymentPermission(fromAccount, transaction.getPassword());
-
         IKeyGenerator keyGenerator = keyGeneratorManager.getKeyGenerator(SequenceKey.FUND_TRANSACTION);
         ISerialKeyGenerator serialKeyGenerator = keyGeneratorManager.getSerialKeyGenerator();
         if (transaction.getSerialNo() == null) {
@@ -127,16 +126,18 @@ public class TradeTransactionServiceImpl implements ITradeTransactionService
         fundTransaction.setModifiedTime(null);
         fundTransactionDao.createFundTransaction(fundTransaction);
 
-        List<TransactionFee> fees = TransactionServiceHelper.wrapTransactionFees(
-            fundTransaction.getId(), transaction.getFees(), when);
-        for (TransactionFee fee : fees) {
-            fundTransactionDao.createTransactionFee(fee);
+        List<TransactionFee> fees = null;
+        if (ObjectUtils.isNotEmpty(transaction.getFees())) {
+            fees = TransactionServiceHelper.wrapTransactionFees(fundTransaction.getId(), transaction.getFees(), when);
+            for (TransactionFee fee : fees) {
+                fundTransactionDao.createTransactionFee(fee);
+            }
         }
 
         // 处理商户账户-费用收入
-        List<FundActivity> merActivities = TransactionServiceHelper.wrapFeeActivitiesForMer(fees);
-        if (ObjectUtils.isNotEmpty(merActivities)) {
-            fundStreamEngine.submit(merchant.getAccountId(), merActivities.toArray(new FundActivity[0]));
+        if (ObjectUtils.isNotEmpty(fees)) {
+            List<FundActivity> activities = TransactionServiceHelper.wrapFeeActivitiesForMer(fees);
+            fundStreamEngine.submit(merchant.getAccountId(), activities.toArray(new FundActivity[0]));
         }
 
         // 处理买家账户-账户支出
@@ -157,10 +158,10 @@ public class TradeTransactionServiceImpl implements ITradeTransactionService
         toActivity.setAmount(fundTransaction.getAmount());
         toActivity.setDescription(fundTransaction.getType().getName());
         activities.add(toActivity);
-        List<FundActivity> accountActivities = TransactionServiceHelper.wrapFeeActivitiesForAccount(fees);
-        if (ObjectUtils.isNotEmpty(accountActivities)) {
-            fundStreamEngine.submit(fundTransaction.getToId(), accountActivities.toArray(new FundActivity[0]));
+        if (ObjectUtils.isNotEmpty(fees)) {
+            TransactionServiceHelper.wrapFeeActivitiesForAccount(activities, fees);
         }
+        fundStreamEngine.submit(fundTransaction.getToId(), activities.toArray(new FundActivity[0]));
 
         TransactionId transactionId = new TransactionId();
         transactionId.setId(fundTransaction.getId());

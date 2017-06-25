@@ -6,5 +6,5 @@ import org.openjava.upay.trade.domain.TransactionId;
 
 public interface IFeeTransactionService
 {
-    TransactionId makeFee(Merchant merchant, Transaction transaction) throws Exception;
+    TransactionId payFees(Merchant merchant, Transaction transaction) throws Exception;
 }
