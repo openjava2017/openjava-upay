@@ -55,7 +55,7 @@ public abstract class AbstractServiceEndpoint
     {
         if (envelop.getAppId() == null) {
             LOG.error("Argument missed: Merchant Id");
-            throw new ServiceAccessException(ErrorCode.ARGUMENT_MISSED);
+            throw new ServiceAccessException(ErrorCode.ILLEGAL_ARGUMENT);
         }
 
         Merchant merchant = merchantService.findMerchantById(envelop.getAppId());

@@ -15,6 +15,7 @@ import org.openjava.upay.shared.sequence.KeyGeneratorManager;
 import org.openjava.upay.shared.sequence.KeyGeneratorManager.SequenceKey;
 import org.openjava.upay.shared.type.ErrorCode;
 import org.openjava.upay.trade.dao.IFundTransactionDao;
+import org.openjava.upay.trade.domain.Fee;
 import org.openjava.upay.trade.domain.Transaction;
 import org.openjava.upay.trade.domain.TransactionId;
 import org.openjava.upay.trade.model.FundTransaction;
@@ -24,6 +25,7 @@ import org.openjava.upay.trade.service.IWithdrawTransactionService;
 import org.openjava.upay.trade.type.TransactionStatus;
 import org.openjava.upay.trade.type.TransactionType;
 import org.openjava.upay.trade.util.TransactionServiceHelper;
+import org.openjava.upay.util.AssertUtils;
 import org.openjava.upay.util.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,25 +63,10 @@ public class WithdrawTransactionServiceImpl implements IWithdrawTransactionServi
     {
         // Arguments check
         Date when = new Date();
+        checkWithdrawTransaction(transaction);
 
-        // 提现只支持现金
-        if (transaction.getPipeline() != Pipeline.CASH) {
-            LOG.error("Only CASH pipeline supported for withdraw");
-            throw new FundTransactionException(ErrorCode.INVALID_ARGUMENT);
-        }
-
-        if (transaction.getAccountId() == null) {
-            LOG.error("Argument missed: Account Id");
-            throw new FundTransactionException(ErrorCode.ARGUMENT_MISSED);
-        }
-        if (transaction.getAmount() == null || transaction.getAmount() <= 0) {
-            LOG.error("Illegal Argument: amount <= 0");
-            throw new FundTransactionException(ErrorCode.ARGUMENT_MISSED);
-        }
-        if (!TransactionServiceHelper.validTransactionFees(transaction.getFees())) {
-            LOG.error("Invalid fee pipeline or amount: not ACCOUNT/CASH or amount <= 0");
-            throw new FundTransactionException(ErrorCode.INVALID_ARGUMENT);
-        }
+        LOG.info("Handle fund account withdraw request, accountId:{} amount:{}",
+            transaction.getAccountId(), transaction.getAmount());
         FundAccount account = fundAccountDao.findFundAccountById(transaction.getAccountId());
         if (account == null || account.getStatus() == AccountStatus.LOGOFF) {
             throw new FundTransactionException(ErrorCode.ACCOUNT_NOT_FOUND);
@@ -144,5 +131,25 @@ public class WithdrawTransactionServiceImpl implements IWithdrawTransactionServi
         transactionId.setId(fundTransaction.getId());
         transactionId.setSerialNo(fundTransaction.getSerialNo());
         return transactionId;
+    }
+
+    private void checkWithdrawTransaction(Transaction transaction)
+    {
+        AssertUtils.notNull(transaction.getAccountId(), "Argument missed: accountId");
+        // 提现只支持现金
+        AssertUtils.isTrue(transaction.getPipeline() == Pipeline.CASH,
+            "Invalid transaction pipeline");
+        AssertUtils.isTrue(transaction.getAmount() != null && transaction.getAmount() > 0,
+            "Invalid transaction amount");
+        AssertUtils.notNull(transaction.getPassword(), "Argument missed: password");
+
+        if (ObjectUtils.isNotEmpty(transaction.getFees())) {
+            for (Fee fee : transaction.getFees()) {
+                AssertUtils.isTrue(fee.getPipeline() == Pipeline.ACCOUNT ||
+                    fee.getPipeline() == Pipeline.CASH, "Invalid fee pipeline");
+                AssertUtils.isTrue(fee.getAmount() != null && fee.getAmount() > 0,
+                    "Invalid fee amount");
+            }
+        }
     }
 }

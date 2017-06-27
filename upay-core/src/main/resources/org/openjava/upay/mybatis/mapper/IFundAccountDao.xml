@@ -19,7 +19,6 @@
         <result column="pwd_change" property="pwdChange"/>
         <result column="login_time" property="loginTime"/>
         <result column="secret_key" property="secretKey"/>
-        <result column="head_img" property="headImg"/>
         <result column="merchant_id" property="merchantId"/>
         <result column="status" property="status"/>
         <result column="lock_time" property="lockTime"/>

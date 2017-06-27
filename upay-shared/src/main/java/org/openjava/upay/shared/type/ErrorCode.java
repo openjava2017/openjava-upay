@@ -16,7 +16,7 @@ public enum ErrorCode implements IEnumType
 
     ARGUMENT_MISSED(1010, "系统参数缺失"),
 
-    INVALID_ARGUMENT(1011, "系统参数无效"),
+    ILLEGAL_ARGUMENT(1011, "无效系统参数"),
 
     INVALID_MERCHANT(1012, "无效商户"),
 

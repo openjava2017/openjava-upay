@@ -25,6 +25,7 @@ import org.openjava.upay.trade.service.ITradeTransactionService;
 import org.openjava.upay.trade.type.TransactionStatus;
 import org.openjava.upay.trade.type.TransactionType;
 import org.openjava.upay.trade.util.TransactionServiceHelper;
+import org.openjava.upay.util.AssertUtils;
 import org.openjava.upay.util.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -62,36 +63,10 @@ public class TradeTransactionServiceImpl implements ITradeTransactionService
     {
         // Arguments check
         Date when = new Date();
+        checkTradeTransaction(transaction);
 
-        // 交易只支持账户支付
-        if (transaction.getPipeline() != Pipeline.ACCOUNT) {
-            LOG.error("Only ACCOUNT pipeline supported for trade");
-            throw new FundTransactionException(ErrorCode.INVALID_ARGUMENT);
-        }
-
-        // 交易费用只能使用账户支付
-        if (ObjectUtils.isNotEmpty(transaction.getFees())) {
-            for (Fee fee : transaction.getFees()) {
-                if (fee.getPipeline() != Pipeline.ACCOUNT) {
-                    LOG.error("Invalid fee pipeline: pipeline != ACCOUNT");
-                    throw new FundTransactionException(ErrorCode.INVALID_ARGUMENT);
-                }
-                if (fee.getAmount() == null || fee.getAmount() <= 0) {
-                    LOG.error("Invalid fee amount: amount <= 0");
-                    throw new FundTransactionException(ErrorCode.INVALID_ARGUMENT);
-                }
-
-            }
-        }
-
-        if (transaction.getAmount() == null || transaction.getAmount() <= 0) {
-            LOG.error("Illegal Argument: amount <= 0");
-            throw new FundTransactionException(ErrorCode.ARGUMENT_MISSED);
-        }
-        if (transaction.getFromId() == null) {
-            LOG.error("Argument missed: From Account Id");
-            throw new FundTransactionException(ErrorCode.ARGUMENT_MISSED);
-        }
+        LOG.info("Handle fund account trade request, fromId:{} toId:{} amount:{}", transaction.getFromId(),
+            transaction.getToId(), transaction.getAmount());
         FundAccount fromAccount = fundAccountDao.findFundAccountById(transaction.getFromId());
         if (fromAccount == null || fromAccount.getStatus() == AccountStatus.LOGOFF) {
             throw new FundTransactionException(ErrorCode.ACCOUNT_NOT_FOUND);
@@ -100,10 +75,6 @@ public class TradeTransactionServiceImpl implements ITradeTransactionService
             throw new FundTransactionException(ErrorCode.INVALID_ACCOUNT_STATUS);
         }
 
-        if (transaction.getToId() == null) {
-            LOG.error("Argument missed: To Account Id");
-            throw new FundTransactionException(ErrorCode.ARGUMENT_MISSED);
-        }
         FundAccount toAccount = fundAccountDao.findFundAccountById(transaction.getToId());
         if (toAccount == null || toAccount.getStatus() == AccountStatus.LOGOFF) {
             throw new FundTransactionException(ErrorCode.ACCOUNT_NOT_FOUND);
@@ -176,5 +147,26 @@ public class TradeTransactionServiceImpl implements ITradeTransactionService
         transactionId.setId(fundTransaction.getId());
         transactionId.setSerialNo(fundTransaction.getSerialNo());
         return transactionId;
+    }
+
+    private void checkTradeTransaction(TradeTransaction transaction)
+    {
+        AssertUtils.notNull(transaction.getFromId(), "Argument missed: fromId");
+        AssertUtils.notNull(transaction.getToId(), "Argument missed: toId");
+        // 交易只支持账户支付
+        AssertUtils.isTrue(transaction.getPipeline() == Pipeline.ACCOUNT,
+            "Invalid transaction pipeline");
+        AssertUtils.isTrue(transaction.getAmount() != null && transaction.getAmount() > 0,
+            "Invalid transaction amount");
+        AssertUtils.notNull(transaction.getPassword(), "Argument missed: password");
+
+        // 交易费用只能使用账户支付
+        if (ObjectUtils.isNotEmpty(transaction.getFees())) {
+            for (Fee fee : transaction.getFees()) {
+                AssertUtils.isTrue(fee.getPipeline() == Pipeline.ACCOUNT, "Invalid fee pipeline");
+                AssertUtils.isTrue(fee.getAmount() != null && fee.getAmount() > 0,
+                    "Invalid fee amount");
+            }
+        }
     }
 }

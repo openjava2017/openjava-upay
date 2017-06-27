@@ -24,6 +24,7 @@ import org.openjava.upay.trade.service.IFundTransactionService;
 import org.openjava.upay.trade.type.TransactionStatus;
 import org.openjava.upay.trade.type.TransactionType;
 import org.openjava.upay.trade.util.TransactionServiceHelper;
+import org.openjava.upay.util.AssertUtils;
 import org.openjava.upay.util.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -61,40 +62,10 @@ public class FeeTransactionServiceImpl implements IFeeTransactionService
     {
         // Arguments check
         Date when = new Date();
-        long totalFee = 0;
+        checkFeeTransaction(transaction);
 
-        if (ObjectUtils.isEmpty(transaction.getFees())) {
-            LOG.error("Argument missed: fees");
-            throw new FundTransactionException(ErrorCode.ARGUMENT_MISSED);
-        }
-        if (transaction.getPipeline() != Pipeline.ACCOUNT && transaction.getPipeline() != Pipeline.CASH) {
-            LOG.error("Only CASH or ACCOUNT pipeline supported for fee");
-            throw new FundTransactionException(ErrorCode.INVALID_ARGUMENT);
-        }
-        for (Fee fee : transaction.getFees()) {
-            totalFee += fee.getAmount();
-            if (fee.getPipeline() != transaction.getPipeline()) {
-                LOG.error("Fee pipeline != transaction pipeline");
-                throw new FundTransactionException(ErrorCode.INVALID_ARGUMENT);
-            }
-            if (fee.getAmount() == null || fee.getAmount() <= 0) {
-                LOG.error("Invalid fee amount: amount <= 0");
-            }
-        }
-        if (transaction.getAmount() != null) {
-            if (transaction.getAmount() != totalFee) {
-                LOG.error("Transaction amount != Total fee amount");
-                throw new FundTransactionException(ErrorCode.INVALID_ARGUMENT);
-            }
-        } else {
-            transaction.setAmount(totalFee);
-        }
-
-        // Even though use cash pipeline for fee, still need specify the account id(who pay the fee)
-        if (transaction.getAccountId() == null) {
-            LOG.error("Argument missed: Account Id");
-            throw new FundTransactionException(ErrorCode.ARGUMENT_MISSED);
-        }
+        LOG.info("Handle fund account fee request, accountId:{} amount:{}",
+            transaction.getAccountId(), transaction.getAmount());
         FundAccount account = fundAccountDao.findFundAccountById(transaction.getAccountId());
         if (account == null || account.getStatus() == AccountStatus.LOGOFF) {
             throw new FundTransactionException(ErrorCode.ACCOUNT_NOT_FOUND);
@@ -156,5 +127,34 @@ public class FeeTransactionServiceImpl implements IFeeTransactionService
         transactionId.setId(fundTransaction.getId());
         transactionId.setSerialNo(fundTransaction.getSerialNo());
         return transactionId;
+    }
+
+    private void checkFeeTransaction(Transaction transaction)
+    {
+        // Even though use cash pipeline for fee, still need specify the account id(who pay the fee)
+        AssertUtils.notNull(transaction.getAccountId(), "Argument missed: accountId");
+        AssertUtils.notEmpty(transaction.getFees(), "Argument missed: fees");
+        AssertUtils.isTrue(transaction.getPipeline() == Pipeline.ACCOUNT ||
+            transaction.getPipeline() == Pipeline.CASH, "Invalid transaction pipeline");
+        if (transaction.getPipeline() == Pipeline.ACCOUNT) {
+            AssertUtils.notNull(transaction.getPassword(), "Argument missed: password");
+        }
+
+        long totalFee = 0;
+        for (Fee fee : transaction.getFees()) {
+            totalFee += fee.getAmount();
+            AssertUtils.isTrue(fee.getPipeline() == transaction.getPipeline(),
+                "Fee pipeline != transaction pipeline");
+            AssertUtils.isTrue(fee.getAmount() != null && fee.getAmount() > 0,
+                "Invalid fee amount");
+        }
+
+        if (transaction.getAmount() != null) {
+            AssertUtils.isTrue(transaction.getAmount() == totalFee,
+                "Transaction amount != Total fee amount");
+        } else {
+            transaction.setAmount(totalFee);
+        }
+
     }
 }

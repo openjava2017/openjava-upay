@@ -33,7 +33,7 @@ public class PaymentServiceEndpoint extends AbstractServiceEndpoint
             LOG.debug("doService request received: " + body);
             if (ObjectUtils.isEmpty(body)) {
                 LOG.error("Cannot extract message envelop from http body");
-                throw new ServiceAccessException(ErrorCode.ARGUMENT_MISSED);
+                throw new ServiceAccessException(ErrorCode.ILLEGAL_ARGUMENT);
             }
 
             envelop = JsonUtils.fromJsonString(body, MessageEnvelop.class);
@@ -47,7 +47,7 @@ public class PaymentServiceEndpoint extends AbstractServiceEndpoint
 
             if (ObjectUtils.isEmpty(envelop.getService())) {
                 LOG.error("Argument missed: service");
-                throw new ServiceAccessException(ErrorCode.ARGUMENT_MISSED);
+                throw new ServiceAccessException(ErrorCode.ILLEGAL_ARGUMENT);
             }
 
             RequestContext context = checkAccessPermission(envelop);

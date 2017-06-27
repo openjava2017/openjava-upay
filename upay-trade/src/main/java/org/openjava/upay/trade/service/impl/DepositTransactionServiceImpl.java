@@ -15,6 +15,7 @@ import org.openjava.upay.shared.sequence.KeyGeneratorManager;
 import org.openjava.upay.shared.sequence.KeyGeneratorManager.SequenceKey;
 import org.openjava.upay.shared.type.ErrorCode;
 import org.openjava.upay.trade.dao.IFundTransactionDao;
+import org.openjava.upay.trade.domain.Fee;
 import org.openjava.upay.trade.domain.Transaction;
 import org.openjava.upay.trade.domain.TransactionId;
 import org.openjava.upay.trade.model.FundTransaction;
@@ -23,6 +24,7 @@ import org.openjava.upay.trade.service.IDepositTransactionService;
 import org.openjava.upay.trade.type.TransactionStatus;
 import org.openjava.upay.trade.type.TransactionType;
 import org.openjava.upay.trade.util.TransactionServiceHelper;
+import org.openjava.upay.util.AssertUtils;
 import org.openjava.upay.util.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -57,27 +59,10 @@ public class DepositTransactionServiceImpl implements IDepositTransactionService
     {
         // Arguments check
         Date when = new Date();
+        checkDepositTransaction(transaction);
 
-        // 充值只支持现金和POS
-        if (transaction.getPipeline() != Pipeline.CASH && transaction.getPipeline() != Pipeline.POS) {
-            LOG.error("Only CASH or POS pipeline supported for deposit");
-            throw new FundTransactionException(ErrorCode.INVALID_ARGUMENT);
-        }
-
-        if (transaction.getAccountId() == null) {
-            LOG.error("Argument missed: Account Id");
-            throw new FundTransactionException(ErrorCode.ARGUMENT_MISSED);
-        }
-        if (transaction.getAmount() == null || transaction.getAmount() <= 0) {
-            LOG.error("Illegal Argument: amount == null or amount <= 0");
-            throw new FundTransactionException(ErrorCode.ARGUMENT_MISSED);
-        }
-        if (!TransactionServiceHelper.validTransactionFees(transaction.getFees())) {
-            LOG.error("Invalid fee pipeline or amount: not ACCOUNT/CASH or amount <= 0");
-            throw new FundTransactionException(ErrorCode.INVALID_ARGUMENT);
-        }
-
-        LOG.info("Fund account deposit, accountId:{} amount:{}", transaction.getAccountId(), transaction.getAmount());
+        LOG.info("Handle fund account deposit request, accountId:{} amount:{}",
+            transaction.getAccountId(), transaction.getAmount());
         FundAccount account = fundAccountDao.findFundAccountById(transaction.getAccountId());
         if (account == null || account.getStatus() == AccountStatus.LOGOFF) {
             throw new FundTransactionException(ErrorCode.ACCOUNT_NOT_FOUND);
@@ -137,5 +122,25 @@ public class DepositTransactionServiceImpl implements IDepositTransactionService
         transactionId.setId(fundTransaction.getId());
         transactionId.setSerialNo(fundTransaction.getSerialNo());
         return transactionId;
+    }
+
+    private void checkDepositTransaction(Transaction transaction)
+    {
+        AssertUtils.notNull(transaction.getAccountId(), "Argument missed: accountId");
+        AssertUtils.notNull(transaction.getPipeline(), "Argument missed: pipeline");
+        AssertUtils.isTrue(transaction.getAmount() != null && transaction.getAmount() > 0,
+            "Invalid transaction amount");
+        // 充值只支持现金和POS
+        AssertUtils.isTrue(transaction.getPipeline() == Pipeline.CASH ||
+            transaction.getPipeline() == Pipeline.POS, "Invalid transaction pipeline");
+
+        if (ObjectUtils.isNotEmpty(transaction.getFees())) {
+            for (Fee fee : transaction.getFees()) {
+                AssertUtils.isTrue(fee.getPipeline() == Pipeline.ACCOUNT ||
+                    fee.getPipeline() == Pipeline.CASH, "Invalid fee pipeline");
+                AssertUtils.isTrue(fee.getAmount() != null && fee.getAmount() > 0,
+                    "Invalid fee amount");
+            }
+        }
     }
 }
