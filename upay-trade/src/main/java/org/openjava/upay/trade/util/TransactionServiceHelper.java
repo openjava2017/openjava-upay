@@ -5,7 +5,6 @@ import org.openjava.upay.core.type.Action;
 import org.openjava.upay.core.type.Pipeline;
 import org.openjava.upay.trade.domain.Fee;
 import org.openjava.upay.trade.model.TransactionFee;
-import org.openjava.upay.util.ObjectUtils;
 
 import java.util.ArrayList;
 import java.util.Date;
@@ -13,22 +12,6 @@ import java.util.List;
 
 public abstract class TransactionServiceHelper
 {
-    public static boolean validTransactionFees(List<Fee> fees)
-    {
-        if (ObjectUtils.isNotEmpty(fees)) {
-            for (Fee fee : fees) {
-                if (fee.getPipeline() != Pipeline.ACCOUNT && fee.getPipeline() != Pipeline.CASH) {
-                    return false;
-                }
-                if (fee.getAmount() == null || fee.getAmount() <= 0) {
-                    return false;
-                }
-            }
-        }
-
-        return true;
-    }
-
     public static List<TransactionFee> wrapTransactionFees(Long transactionId, List<Fee> fees, Date when)
     {
         List<TransactionFee> feeList = new ArrayList<>();

@@ -8,6 +8,8 @@ import org.springframework.stereotype.Repository;
 @Repository("accountFundDao")
 public interface IAccountFundDao extends MybatisMapperSupport
 {
+    void createAccountFund(AccountFund accountFund);
+
     AccountFund findAccountFundById(Long accountId);
 
     int compareAndSetVersion(AccountFund accountFund);

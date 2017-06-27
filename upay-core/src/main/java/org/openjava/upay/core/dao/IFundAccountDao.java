@@ -11,6 +11,8 @@ import java.util.Date;
 @Repository("fundAccountDao")
 public interface IFundAccountDao extends MybatisMapperSupport
 {
+    void createFundAccount(FundAccount account);
+
     FundAccount findFundAccountById(Long accountId);
 
     int updateAccountLockStatus(@Param("id") Long id, @Param("lockStatus")AccountStatus lockStatus, @Param("when") Date when);

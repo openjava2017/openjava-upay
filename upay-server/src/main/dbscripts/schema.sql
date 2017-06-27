@@ -46,7 +46,7 @@ CREATE TABLE `upay_fund_account` (
   `pwd_change` TINYINT UNSIGNED COMMENT '修改登陆密码?',
   `login_time` DATETIME COMMENT '最近登陆时间',
   `secret_key` VARCHAR(80) NOT NULL COMMENT '安全密钥',
-  `mer_id` BIGINT NOT NULL COMMENT '商户ID',
+  `merchant_id` BIGINT NOT NULL COMMENT '商户ID',
   `status` TINYINT UNSIGNED NOT NULL COMMENT '账号状态-正常 锁定等',
   `lock_time` DATETIME COMMENT '锁定时间',
   `created_time` DATETIME COMMENT '创建时间',

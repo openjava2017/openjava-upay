@@ -191,7 +191,9 @@ public class KeyGeneratorManager
     {
         TEST_SEQUENCE("TEST_SEQUENCE"),
 
-        FUND_TRANSACTION("FUND_TRANSACTION");
+        FUND_TRANSACTION("FUND_TRANSACTION"),
+
+        FUND_ACCOUNT("FUND_ACCOUNT");
 
         private String key;
         

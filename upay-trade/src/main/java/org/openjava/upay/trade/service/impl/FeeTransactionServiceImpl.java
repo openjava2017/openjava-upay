@@ -113,14 +113,14 @@ public class FeeTransactionServiceImpl implements IFeeTransactionService
         // 处理商户账户-费用收入
         if (ObjectUtils.isNotEmpty(fees)) {
             List<FundActivity> activities = TransactionServiceHelper.wrapFeeActivitiesForMer(fees);
-            fundStreamEngine.submit(merchant.getAccountId(), activities.toArray(new FundActivity[0]));
+            fundStreamEngine.submit(fundTransaction.getToId(), activities.toArray(new FundActivity[0]));
         }
 
         // 处理个人账户缴费扣款, fee pipeline = transaction pipeline
         if (transaction.getPipeline() == Pipeline.ACCOUNT && ObjectUtils.isNotEmpty(fees)) {
             List<FundActivity> activities = new ArrayList<>();
             TransactionServiceHelper.wrapFeeActivitiesForAccount(activities, fees);
-            fundStreamEngine.submit(fundTransaction.getToId(), activities.toArray(new FundActivity[0]));
+            fundStreamEngine.submit(fundTransaction.getFromId(), activities.toArray(new FundActivity[0]));
         }
 
         TransactionId transactionId = new TransactionId();

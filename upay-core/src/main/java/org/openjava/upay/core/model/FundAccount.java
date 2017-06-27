@@ -22,7 +22,6 @@ public class FundAccount
     private Boolean pwdChange;
     private Date loginTime;
     private String secretKey;
-    private String headImg;
     private Long merchantId;
     private AccountStatus status;
     private Date lockTime;
@@ -167,16 +166,6 @@ public class FundAccount
     public void setSecretKey(String secretKey)
     {
         this.secretKey = secretKey;
-    }
-
-    public String getHeadImg()
-    {
-        return headImg;
-    }
-
-    public void setHeadImg(String headImg)
-    {
-        this.headImg = headImg;
     }
 
     public Long getMerchantId()

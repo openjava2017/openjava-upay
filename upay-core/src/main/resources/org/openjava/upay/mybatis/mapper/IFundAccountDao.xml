@@ -26,6 +26,14 @@
         <result column="modified_time" property="modifiedTime"/>
     </resultMap>
 
+    <update id="createFundAccount" parameterType="org.openjava.upay.core.model.FundAccount">
+        INSERT INTO upay_fund_account(id, type, code, name, gender, mobile, email, id_code, address, login_pwd, password
+          pwd_change, login_time, secret_key, merchant_id, status, lock_time, created_time, modified_time)
+        VALUES
+          (#{id}, #{type}, #{code}, #{name}, #{gender}, #{mobile}, #{email}, #{idCode}, #{address}, #{loginPwd}, #{password},
+           #{pwdChange}, #{loginTime}, #{secretKey}, #{merchantId}, #{status}, #{lockTime}, #{createdTime}, #{modifiedTime})
+    </update>
+
     <select id="findFundAccountById" parameterType="long" resultMap="FundAccountMap">
         <![CDATA[
             SELECT * FROM upay_fund_account WHERE id = #{accountId}
