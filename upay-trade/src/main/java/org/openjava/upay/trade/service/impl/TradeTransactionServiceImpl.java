@@ -65,7 +65,7 @@ public class TradeTransactionServiceImpl implements ITradeTransactionService
 
         // 交易只支持账户支付
         if (transaction.getPipeline() != Pipeline.ACCOUNT) {
-            LOG.error("Only ACCOUNT pipeline supported for account register");
+            LOG.error("Only ACCOUNT pipeline supported for trade");
             throw new FundTransactionException(ErrorCode.INVALID_ARGUMENT);
         }
 
@@ -73,18 +73,19 @@ public class TradeTransactionServiceImpl implements ITradeTransactionService
         if (ObjectUtils.isNotEmpty(transaction.getFees())) {
             for (Fee fee : transaction.getFees()) {
                 if (fee.getPipeline() != Pipeline.ACCOUNT) {
-                    LOG.error("Invalid fee pipeline: ACCOUNT");
+                    LOG.error("Invalid fee pipeline: pipeline != ACCOUNT");
                     throw new FundTransactionException(ErrorCode.INVALID_ARGUMENT);
                 }
                 if (fee.getAmount() == null || fee.getAmount() <= 0) {
-                    LOG.error("Invalid fee amount: amount > 0");
+                    LOG.error("Invalid fee amount: amount <= 0");
+                    throw new FundTransactionException(ErrorCode.INVALID_ARGUMENT);
                 }
 
             }
         }
 
         if (transaction.getAmount() == null || transaction.getAmount() <= 0) {
-            LOG.error("Illegal Argument: amount != null && amount > 0");
+            LOG.error("Illegal Argument: amount <= 0");
             throw new FundTransactionException(ErrorCode.ARGUMENT_MISSED);
         }
         if (transaction.getFromId() == null) {

@@ -60,7 +60,7 @@ public class DepositTransactionServiceImpl implements IDepositTransactionService
 
         // 充值只支持现金和POS
         if (transaction.getPipeline() != Pipeline.CASH && transaction.getPipeline() != Pipeline.POS) {
-            LOG.error("Only CASH or POS pipeline supported for account deposit");
+            LOG.error("Only CASH or POS pipeline supported for deposit");
             throw new FundTransactionException(ErrorCode.INVALID_ARGUMENT);
         }
 
@@ -69,13 +69,15 @@ public class DepositTransactionServiceImpl implements IDepositTransactionService
             throw new FundTransactionException(ErrorCode.ARGUMENT_MISSED);
         }
         if (transaction.getAmount() == null || transaction.getAmount() <= 0) {
-            LOG.error("Illegal Argument: amount != null && amount > 0");
+            LOG.error("Illegal Argument: amount == null or amount <= 0");
             throw new FundTransactionException(ErrorCode.ARGUMENT_MISSED);
         }
         if (!TransactionServiceHelper.validTransactionFees(transaction.getFees())) {
-            LOG.error("Invalid fee pipeline or amount: ACCOUNT/CASH and amount > 0");
+            LOG.error("Invalid fee pipeline or amount: not ACCOUNT/CASH or amount <= 0");
             throw new FundTransactionException(ErrorCode.INVALID_ARGUMENT);
         }
+
+        LOG.info("Fund account deposit, accountId:{} amount:{}", transaction.getAccountId(), transaction.getAmount());
         FundAccount account = fundAccountDao.findFundAccountById(transaction.getAccountId());
         if (account == null || account.getStatus() == AccountStatus.LOGOFF) {
             throw new FundTransactionException(ErrorCode.ACCOUNT_NOT_FOUND);

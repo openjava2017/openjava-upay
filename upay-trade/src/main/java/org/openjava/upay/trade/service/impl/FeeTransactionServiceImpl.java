@@ -68,7 +68,7 @@ public class FeeTransactionServiceImpl implements IFeeTransactionService
             throw new FundTransactionException(ErrorCode.ARGUMENT_MISSED);
         }
         if (transaction.getPipeline() != Pipeline.ACCOUNT && transaction.getPipeline() != Pipeline.CASH) {
-            LOG.error("Only CASH or ACCOUNT pipeline supported");
+            LOG.error("Only CASH or ACCOUNT pipeline supported for fee");
             throw new FundTransactionException(ErrorCode.INVALID_ARGUMENT);
         }
         for (Fee fee : transaction.getFees()) {
@@ -78,7 +78,7 @@ public class FeeTransactionServiceImpl implements IFeeTransactionService
                 throw new FundTransactionException(ErrorCode.INVALID_ARGUMENT);
             }
             if (fee.getAmount() == null || fee.getAmount() <= 0) {
-                LOG.error("Invalid fee amount: amount > 0");
+                LOG.error("Invalid fee amount: amount <= 0");
             }
         }
         if (transaction.getAmount() != null) {

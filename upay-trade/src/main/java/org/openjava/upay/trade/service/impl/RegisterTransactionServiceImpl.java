@@ -20,7 +20,7 @@ public class RegisterTransactionServiceImpl implements IRegisterTransactionServi
     public TransactionId register(Merchant merchant, RegisterTransaction transaction) throws Exception
     {
         if (transaction.getAmount() != null) {
-            if (transaction.getPipeline() == Pipeline.ACCOUNT && transaction.getAmount() <= 0) {
+            if (transaction.getPipeline() == Pipeline.ACCOUNT || transaction.getAmount() <= 0) {
                 LOG.error("Invalid transaction pipeline and amount: pipline != ACCOUNT & amount > 0");
                 throw new FundTransactionException(ErrorCode.ARGUMENT_MISSED);
             }

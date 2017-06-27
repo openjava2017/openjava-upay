@@ -64,7 +64,7 @@ public class WithdrawTransactionServiceImpl implements IWithdrawTransactionServi
 
         // 提现只支持现金
         if (transaction.getPipeline() != Pipeline.CASH) {
-            LOG.error("Only CASH pipeline supported for account withdraw");
+            LOG.error("Only CASH pipeline supported for withdraw");
             throw new FundTransactionException(ErrorCode.INVALID_ARGUMENT);
         }
 
@@ -72,12 +72,12 @@ public class WithdrawTransactionServiceImpl implements IWithdrawTransactionServi
             LOG.error("Argument missed: Account Id");
             throw new FundTransactionException(ErrorCode.ARGUMENT_MISSED);
         }
-        if (transaction.getAmount() == null || transaction.getAmount() == 0) {
-            LOG.error("Illegal Argument: amount != null && amount > 0");
+        if (transaction.getAmount() == null || transaction.getAmount() <= 0) {
+            LOG.error("Illegal Argument: amount <= 0");
             throw new FundTransactionException(ErrorCode.ARGUMENT_MISSED);
         }
         if (!TransactionServiceHelper.validTransactionFees(transaction.getFees())) {
-            LOG.error("Invalid fee pipeline or amount: ACCOUNT/CASH and amount > 0");
+            LOG.error("Invalid fee pipeline or amount: not ACCOUNT/CASH or amount <= 0");
             throw new FundTransactionException(ErrorCode.INVALID_ARGUMENT);
         }
         FundAccount account = fundAccountDao.findFundAccountById(transaction.getAccountId());
