@@ -71,6 +71,39 @@ public class FundStreamEngineImpl implements IFundStreamEngine
         }
     }
 
+    @Override
+    @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
+    public boolean submitOnce(Long accountId, FundActivity... activities)
+    {
+        AssertUtils.notNull(accountId);
+        AssertUtils.notEmpty(activities);
+
+        // NOTE: mysql database's default isolation is REPEATABLE_READ, that means the same AccountFund
+        // will be returned when this method is repeated invoked within a specified database transaction
+        // If we have retry mechanism, please use submit() instead
+        AccountFund accountFund = accountFundDao.findAccountFundById(accountId);
+        if (accountFund == null) {
+            throw new FundTransactionException(ErrorCode.ACCOUNT_NOT_FOUND);
+        }
+
+        long totalAmount = 0;
+        FundStatement[] statements = wrapFundStatements(accountFund, activities);
+        for (FundStatement statement : statements) {
+            totalAmount += statement.getAmount();
+            accountFundDao.createFundStatement(statement);
+        }
+
+        // 设置账户余额，判断余额是否充足
+        long balance = accountFund.getBalance() + totalAmount;
+        if (balance >= 0) {
+            accountFund.setBalance(balance);
+        } else {
+            throw new FundTransactionException(ErrorCode.INSUFFICIENT_ACCOUNT_FUNDS);
+        }
+
+        return compareAndSetVersion(accountFund);
+    }
+
     private FundStatement[] wrapFundStatements(AccountFund accountFund, FundActivity[] activities)
     {
         Date when = new Date();

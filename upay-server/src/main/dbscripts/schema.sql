@@ -42,7 +42,7 @@ CREATE TABLE `upay_fund_account` (
   `id_code` VARCHAR(20) COMMENT '身份证号码',
   `address` VARCHAR(128) COMMENT '联系地址',
   `login_pwd` VARCHAR(50) NOT NULL COMMENT '登陆密码',
-  `trade_pwd` VARCHAR(50) NOT NULL COMMENT '交易密码',
+  `password` VARCHAR(50) NOT NULL COMMENT '交易密码',
   `pwd_change` TINYINT UNSIGNED COMMENT '修改登陆密码?',
   `login_time` DATETIME COMMENT '最近登陆时间',
   `secret_key` VARCHAR(80) NOT NULL COMMENT '安全密钥',
@@ -115,7 +115,7 @@ CREATE TABLE `upay_fund_transaction` (
   PRIMARY KEY (`id`),
   KEY `idx_fund_transaction_fromId` (`from_id`) USING BTREE,
   KEY `idx_fund_transaction_toId` (`to_id`) USING BTREE,
-  UNIQUE KEY `idx_fund_transaction_serialNo` (`serial_no`, `type`) USING BTREE
+  UNIQUE KEY `idx_fund_transaction_serialNo` (`serial_no`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------

@@ -12,9 +12,13 @@ public class JsonUtils
     static
     {
         registerSerializeConfig("org.openjava.upay.core.type.Pipeline");
+        registerSerializeConfig("org.openjava.upay.core.type.AccountType");
+        registerSerializeConfig("org.openjava.upay.shared.type.Gender");
         registerSerializeConfig("org.openjava.upay.trade.type.FeeType");
 
         registerParserConfig("org.openjava.upay.core.type.Pipeline");
+        registerParserConfig("org.openjava.upay.core.type.AccountType");
+        registerParserConfig("org.openjava.upay.shared.type.Gender");
         registerParserConfig("org.openjava.upay.trade.type.FeeType");
     }
 
@@ -44,7 +48,7 @@ public class JsonUtils
     {
         try {
             ParserConfig config = ParserConfig.getGlobalInstance();
-            Class<? extends  IEnumType> type =
+            Class<? extends IEnumType> type =
                 (Class<? extends  IEnumType>)ClassUtils.getDefaultClassLoader().loadClass(name);
             config.putDeserializer(type, new EnumTypeDeserializer<>(type));
         } catch (Exception ex) {

@@ -13,11 +13,14 @@ import java.util.List;
 
 public abstract class TransactionServiceHelper
 {
-    public static boolean validFeePipeline(List<Fee> fees)
+    public static boolean validTransactionFees(List<Fee> fees)
     {
         if (ObjectUtils.isNotEmpty(fees)) {
             for (Fee fee : fees) {
                 if (fee.getPipeline() != Pipeline.ACCOUNT && fee.getPipeline() != Pipeline.CASH) {
+                    return false;
+                }
+                if (fee.getAmount() == null || fee.getAmount() <= 0) {
                     return false;
                 }
             }

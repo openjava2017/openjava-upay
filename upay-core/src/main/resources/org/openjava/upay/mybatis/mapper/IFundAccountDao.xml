@@ -15,7 +15,7 @@
         <result column="id_code" property="idCode"/>
         <result column="address" property="address"/>
         <result column="login_pwd" property="loginPwd"/>
-        <result column="trade_pwd" property="tradePwd"/>
+        <result column="password" property="password"/>
         <result column="pwd_change" property="pwdChange"/>
         <result column="login_time" property="loginTime"/>
         <result column="secret_key" property="secretKey"/>

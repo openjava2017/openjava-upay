@@ -72,17 +72,20 @@ public class WithdrawTransactionServiceImpl implements IWithdrawTransactionServi
             LOG.error("Argument missed: Account Id");
             throw new FundTransactionException(ErrorCode.ARGUMENT_MISSED);
         }
+        if (transaction.getAmount() == null || transaction.getAmount() == 0) {
+            LOG.error("Illegal Argument: amount != null && amount > 0");
+            throw new FundTransactionException(ErrorCode.ARGUMENT_MISSED);
+        }
+        if (!TransactionServiceHelper.validTransactionFees(transaction.getFees())) {
+            LOG.error("Invalid fee pipeline or amount: ACCOUNT/CASH and amount > 0");
+            throw new FundTransactionException(ErrorCode.INVALID_ARGUMENT);
+        }
         FundAccount account = fundAccountDao.findFundAccountById(transaction.getAccountId());
         if (account == null || account.getStatus() == AccountStatus.LOGOFF) {
             throw new FundTransactionException(ErrorCode.ACCOUNT_NOT_FOUND);
         }
         if (account.getStatus() != AccountStatus.NORMAL) {
             throw new FundTransactionException(ErrorCode.INVALID_ACCOUNT_STATUS);
-        }
-
-        if (!TransactionServiceHelper.validFeePipeline(transaction.getFees())) {
-            LOG.error("Only CASH or ACCOUNT pipeline supported for transaction fee");
-            throw new FundTransactionException(ErrorCode.INVALID_ARGUMENT);
         }
 
         // 验证买家账户状态和密码

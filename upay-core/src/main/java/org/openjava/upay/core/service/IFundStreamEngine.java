@@ -8,4 +8,6 @@ import org.openjava.upay.core.domain.FundActivity;
 public interface IFundStreamEngine
 {
     void submit(Long accountId, FundActivity... activities);
+
+    boolean submitOnce(Long accountId, FundActivity... activities);
 }

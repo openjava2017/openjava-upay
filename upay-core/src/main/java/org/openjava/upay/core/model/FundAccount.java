@@ -18,7 +18,7 @@ public class FundAccount
     private String idCode;
     private String address;
     private String loginPwd;
-    private String tradePwd;
+    private String password;
     private Boolean pwdChange;
     private Date loginTime;
     private String secretKey;
@@ -129,14 +129,14 @@ public class FundAccount
         this.loginPwd = loginPwd;
     }
 
-    public String getTradePwd()
+    public String getPassword()
     {
-        return tradePwd;
+        return password;
     }
 
-    public void setTradePwd(String tradePwd)
+    public void setPassword(String password)
     {
-        this.tradePwd = tradePwd;
+        this.password = password;
     }
 
     public Boolean getPwdChange()

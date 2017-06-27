@@ -77,6 +77,9 @@ public class FeeTransactionServiceImpl implements IFeeTransactionService
                 LOG.error("Fee pipeline != transaction pipeline");
                 throw new FundTransactionException(ErrorCode.INVALID_ARGUMENT);
             }
+            if (fee.getAmount() == null || fee.getAmount() <= 0) {
+                LOG.error("Invalid fee amount: amount > 0");
+            }
         }
         if (transaction.getAmount() != null) {
             if (transaction.getAmount() != totalFee) {

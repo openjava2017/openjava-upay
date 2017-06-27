@@ -18,7 +18,7 @@ import java.util.concurrent.TimeUnit;
 @Service("fundTransactionService")
 public class FundTransactionServiceImpl implements IFundTransactionService
 {
-    private static final String TRADE_AUTH_PREFIX = "upay:trade:auth:";
+    private static final String TRADE_AUTH_PREFIX = "upay:register:auth:";
 
     private static final int MAX_PASSWORD_ERRORS = 3;
 
@@ -34,7 +34,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService
         String date = DateUtils.format(when, DateUtils.YYYY_MM_DD);
         String errorsDailyKey = TRADE_AUTH_PREFIX + date + "[" + account.getId() + "]";
         String encodedPwd = PasswordUtils.encrypt(password, account.getSecretKey());
-        if (!ObjectUtils.equals(account.getTradePwd(), encodedPwd)) {
+        if (!ObjectUtils.equals(account.getPassword(), encodedPwd)) {
             long expiredInSec = TimeUnit.DAYS.toSeconds(2);
             long errors = redisSystemService.incAndGet(errorsDailyKey, (int) expiredInSec);
             if (errors >= MAX_PASSWORD_ERRORS) {
