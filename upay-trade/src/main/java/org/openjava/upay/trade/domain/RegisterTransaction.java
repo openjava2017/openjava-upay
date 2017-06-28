@@ -17,9 +17,7 @@ public class RegisterTransaction
     private String idCode;
     private String address;
     private String password;
-    private Pipeline pipeline;
-    private Long amount;
-    private String description;
+
     private List<Fee> fees;
 
     public AccountType getType()
@@ -110,36 +108,6 @@ public class RegisterTransaction
     public void setPassword(String password)
     {
         this.password = password;
-    }
-
-    public Pipeline getPipeline()
-    {
-        return pipeline;
-    }
-
-    public void setPipeline(Pipeline pipeline)
-    {
-        this.pipeline = pipeline;
-    }
-
-    public Long getAmount()
-    {
-        return amount;
-    }
-
-    public void setAmount(Long amount)
-    {
-        this.amount = amount;
-    }
-
-    public String getDescription()
-    {
-        return description;
-    }
-
-    public void setDescription(String description)
-    {
-        this.description = description;
     }
 
     public List<Fee> getFees()
