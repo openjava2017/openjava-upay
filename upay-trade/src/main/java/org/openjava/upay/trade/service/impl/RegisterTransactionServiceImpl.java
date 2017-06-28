@@ -8,19 +8,21 @@ import org.openjava.upay.core.model.Merchant;
 import org.openjava.upay.core.type.AccountStatus;
 import org.openjava.upay.shared.sequence.IKeyGenerator;
 import org.openjava.upay.shared.sequence.KeyGeneratorManager;
+import org.openjava.upay.trade.domain.AccountId;
 import org.openjava.upay.trade.domain.RegisterTransaction;
-import org.openjava.upay.trade.domain.TransactionId;
 import org.openjava.upay.trade.service.IRegisterTransactionService;
 import org.openjava.upay.util.AssertUtils;
 import org.openjava.upay.util.security.AESCipher;
 import org.openjava.upay.util.security.PasswordUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import javax.annotation.Resource;
 import java.util.Date;
 
+@Service("registerTransactionService")
 public class RegisterTransactionServiceImpl implements IRegisterTransactionService
 {
     private static final Logger LOG = LoggerFactory.getLogger(RegisterTransactionServiceImpl.class);
@@ -36,7 +38,7 @@ public class RegisterTransactionServiceImpl implements IRegisterTransactionServi
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public TransactionId register(Merchant merchant, RegisterTransaction transaction) throws Exception
+    public AccountId register(Merchant merchant, RegisterTransaction transaction) throws Exception
     {
         // Arguments check
         Date when = new Date();
@@ -48,9 +50,9 @@ public class RegisterTransactionServiceImpl implements IRegisterTransactionServi
         AccountFund fund = wrapAccountFund(account, when);
         accountFundDao.createAccountFund(fund);
 
-        TransactionId transactionId = new TransactionId();
-        transactionId.setId(account.getId());
-        return transactionId;
+        AccountId registerId = new AccountId();
+        registerId.setId(account.getId());
+        return registerId;
     }
 
     private void checkRegisterTransaction(RegisterTransaction transaction)
@@ -66,8 +68,9 @@ public class RegisterTransactionServiceImpl implements IRegisterTransactionServi
         IKeyGenerator keyGenerator = keyGeneratorManager.getKeyGenerator(KeyGeneratorManager.SequenceKey.FUND_ACCOUNT);
         String secretKey = AESCipher.generateSecretKey();
         String encodedPwd = PasswordUtils.encrypt(transaction.getPassword(), secretKey);
+        long accountId = transaction.getId() == null ? keyGenerator.nextId() : transaction.getId();
         FundAccount account = new FundAccount();
-        account.setId(keyGenerator.nextId());
+        account.setId(accountId);
         account.setType(transaction.getType());
         account.setCode(transaction.getCode());
         account.setName(transaction.getName());
