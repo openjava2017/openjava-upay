@@ -33,14 +33,15 @@ public class FundStreamEngineImpl implements IFundStreamEngine
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public void submit(Long accountId, FundActivity... activities)
+    public AccountFund submit(Long accountId, FundActivity... activities)
     {
         AssertUtils.notNull(accountId);
         AssertUtils.notEmpty(activities);
 
         boolean success = true;
+        AccountFund accountFund = null;
         for (int retry = 0; retry < RETRIES; retry ++) {
-            AccountFund accountFund = accountFundService.findAccountFundById(accountId);
+            accountFund = accountFundService.findAccountFundById(accountId);
             if (accountFund == null) {
                 throw new FundTransactionException(ErrorCode.ACCOUNT_NOT_FOUND);
             }
@@ -69,11 +70,12 @@ public class FundStreamEngineImpl implements IFundStreamEngine
         if (!success) {
             throw new FundTransactionException(ErrorCode.DATA_CONCURRENT_MODIFY);
         }
+        return accountFund;
     }
 
     @Override
     @Transactional(propagation = Propagation.REQUIRED, rollbackFor = Exception.class)
-    public boolean submitOnce(Long accountId, FundActivity... activities)
+    public AccountFund submitOnce(Long accountId, FundActivity... activities)
     {
         AssertUtils.notNull(accountId);
         AssertUtils.notEmpty(activities);
@@ -101,7 +103,7 @@ public class FundStreamEngineImpl implements IFundStreamEngine
             throw new FundTransactionException(ErrorCode.INSUFFICIENT_ACCOUNT_FUNDS);
         }
 
-        return compareAndSetVersion(accountFund);
+        return compareAndSetVersion(accountFund) ? accountFund : null;
     }
 
     private FundStatement[] wrapFundStatements(AccountFund accountFund, FundActivity[] activities)

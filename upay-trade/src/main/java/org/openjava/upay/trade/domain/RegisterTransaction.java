@@ -18,8 +18,6 @@ public class RegisterTransaction
     private String address;
     private String password;
 
-    private List<Fee> fees;
-
     public AccountType getType()
     {
         return type;
@@ -108,15 +106,5 @@ public class RegisterTransaction
     public void setPassword(String password)
     {
         this.password = password;
-    }
-
-    public List<Fee> getFees()
-    {
-        return fees;
-    }
-
-    public void setFees(List<Fee> fees)
-    {
-        this.fees = fees;
     }
 }
