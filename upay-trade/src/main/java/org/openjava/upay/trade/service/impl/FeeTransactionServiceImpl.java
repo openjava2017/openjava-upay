@@ -90,10 +90,8 @@ public class FeeTransactionServiceImpl implements IFeeTransactionService
         fundTransaction.setMerchantId(merchant.getId());
         fundTransaction.setSerialNo(transaction.getSerialNo());
         fundTransaction.setType(TransactionType.PAY_FEE);
-        fundTransaction.setFromId(account.getId());
-        fundTransaction.setFromName(account.getName());
-        fundTransaction.setToId(merchant.getAccountId());
-        fundTransaction.setToName(merchant.getName());
+        fundTransaction.setToId(account.getId());
+        fundTransaction.setToName(account.getName());
         fundTransaction.setPipeline(transaction.getPipeline());
         fundTransaction.setAmount(transaction.getAmount());
         fundTransaction.setStatus(TransactionStatus.STATUS_COMPLETED);
@@ -113,14 +111,14 @@ public class FeeTransactionServiceImpl implements IFeeTransactionService
         // 处理商户账户-费用收入
         if (ObjectUtils.isNotEmpty(fees)) {
             List<FundActivity> activities = TransactionServiceHelper.wrapFeeActivitiesForMer(fees);
-            fundStreamEngine.submit(fundTransaction.getToId(), activities.toArray(new FundActivity[0]));
+            fundStreamEngine.submit(merchant.getAccountId(), activities.toArray(new FundActivity[0]));
         }
 
         // 处理个人账户缴费扣款, fee pipeline = transaction pipeline
         if (transaction.getPipeline() == Pipeline.ACCOUNT && ObjectUtils.isNotEmpty(fees)) {
             List<FundActivity> activities = new ArrayList<>();
             TransactionServiceHelper.wrapFeeActivitiesForAccount(activities, fees);
-            fundStreamEngine.submit(fundTransaction.getFromId(), activities.toArray(new FundActivity[0]));
+            fundStreamEngine.submit(fundTransaction.getToId(), activities.toArray(new FundActivity[0]));
         }
 
         TransactionId transactionId = new TransactionId();
@@ -141,6 +139,7 @@ public class FeeTransactionServiceImpl implements IFeeTransactionService
         }
 
         long totalFee = 0;
+        // 所有费用必须使用一种渠道, 并且与请求的渠道一致
         for (Fee fee : transaction.getFees()) {
             totalFee += fee.getAmount();
             AssertUtils.isTrue(fee.getPipeline() == transaction.getPipeline(),
@@ -149,6 +148,7 @@ public class FeeTransactionServiceImpl implements IFeeTransactionService
                 "Invalid fee amount");
         }
 
+        // 请求中无费用总额时设置计算总额totalFee，否则请求中的费用总和必须与计算总额totalFee一致
         if (transaction.getAmount() != null) {
             AssertUtils.isTrue(transaction.getAmount() == totalFee,
                 "Transaction amount != Total fee amount");
