@@ -11,4 +11,8 @@ public interface IFundStreamEngine
     AccountFund submit(Long accountId, FundActivity... activities);
 
     AccountFund submitOnce(Long accountId, FundActivity... activities);
+
+    boolean freeze(Long accountId, Long amount);
+
+    boolean unfreeze(Long accountId, Long amount);
 }

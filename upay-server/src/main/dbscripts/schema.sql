@@ -134,6 +134,31 @@ CREATE TABLE `upay_transaction_fee` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------
+-- 资金冻结记录
+-- ----------------------------
+DROP TABLE IF EXISTS `upay_fund_frozen`;
+CREATE TABLE `upay_fund_frozen` (
+  `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `serial_no` VARCHAR(40) NOT NULL COMMENT '操作流水号',
+  `account_id` BIGINT NOT NULL COMMENT '账号ID',
+  `account_name` VARCHAR(20) COMMENT '用户名-冗余',
+  `type` TINYINT UNSIGNED NOT NULL COMMENT '冻结类型-系统冻结 交易冻结',
+  `amount` BIGINT NOT NULL COMMENT '金额-分',
+  `status` TINYINT UNSIGNED NOT NULL COMMENT '冻结状态-冻结 解冻',
+  `frozen_time` DATETIME NOT NULL COMMENT '冻结时间',
+  `unfrozen_time` DATETIME COMMENT '解冻时间',
+  `merchant_id` BIGINT NOT NULL COMMENT '商户ID',
+  `frozen_uid` BIGINT NULL COMMENT '冻结人',
+  `frozen_uname` BIGINT NULL COMMENT '冻结人名称',
+  `unfrozen_uid` BIGINT NULL COMMENT '解冻人',
+  `unfrozen_uname` BIGINT NULL COMMENT '解冻人名称',
+  `description` VARCHAR(128) COMMENT '备注',
+  PRIMARY KEY (`id`),
+  KEY `idx_fund_frozen_transactionId` (`transaction_id`) USING BTREE,
+  KEY `idx_fund_frozen_accountId` (`account_id`) USING BTREE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8;
+
+-- ----------------------------
 -- 分布式子事务表
 -- 当与外部系统发生交易（分布式事务）时使用，如果只是发生系统内部账号之间的交易无需使用。
 -- ----------------------------

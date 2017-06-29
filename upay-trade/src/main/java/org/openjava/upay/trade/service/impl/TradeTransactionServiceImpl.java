@@ -126,7 +126,7 @@ public class TradeTransactionServiceImpl implements ITradeTransactionService
         fromActivity.setPipeline(fundTransaction.getPipeline());
         fromActivity.setAction(Action.OUTGO);
         fromActivity.setAmount(fundTransaction.getAmount());
-        fromActivity.setDescription(fundTransaction.getType().getName());
+        fromActivity.setDescription(fundTransaction.getType().getName() + Action.OUTGO.getName());
         fundStreamEngine.submit(fundTransaction.getFromId(), fromActivity);
 
         // 处理卖家账户-账户收入 费用支出
@@ -136,7 +136,7 @@ public class TradeTransactionServiceImpl implements ITradeTransactionService
         toActivity.setPipeline(fundTransaction.getPipeline());
         toActivity.setAction(Action.INCOME);
         toActivity.setAmount(fundTransaction.getAmount());
-        toActivity.setDescription(fundTransaction.getType().getName());
+        toActivity.setDescription(fundTransaction.getType().getName() + Action.INCOME.getName());
         activities.add(toActivity);
         if (ObjectUtils.isNotEmpty(fees)) {
             TransactionServiceHelper.wrapFeeActivitiesForAccount(activities, fees);

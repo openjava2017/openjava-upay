@@ -14,17 +14,15 @@ public enum ErrorCode implements IEnumType
 
     DATA_SIGN_FAILED(1004, "数据签名失败"),
 
-    ARGUMENT_MISSED(1010, "系统参数缺失"),
+    ILLEGAL_ARGUMENT(1010, "无效系统参数"),
 
-    ILLEGAL_ARGUMENT(1011, "无效系统参数"),
+    INVALID_MERCHANT(1011, "无效商户"),
 
-    INVALID_MERCHANT(1012, "无效商户"),
+    ACCOUNT_NOT_FOUND(1012, "资金账号不存在"),
 
-    ACCOUNT_NOT_FOUND(1013, "资金账号不存在"),
+    INVALID_ACCOUNT_STATUS(1013, "无效的账户状态"),
 
-    INVALID_ACCOUNT_STATUS(1014, "无效的账户状态"),
-
-    INVALID_ACCOUNT_PASSWORD(1015, "账户密码错误"),
+    INVALID_ACCOUNT_PASSWORD(1014, "账户密码错误"),
 
     INSUFFICIENT_ACCOUNT_FUNDS(1020, "账户余额不足"),
 
@@ -32,7 +30,7 @@ public enum ErrorCode implements IEnumType
 
     INVALID_TRANSACTION_STATUS(1022, "无效的事务状态"),
 
-    DATA_CONCURRENT_MODIFY(1050, "数据并发修改");
+    DATA_MODIFY_FAILED(1050, "数据修改失败");
 
     private int code;
     private String name;

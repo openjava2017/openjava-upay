@@ -68,7 +68,7 @@ public class FundStreamEngineImpl implements IFundStreamEngine
         }
 
         if (!success) {
-            throw new FundTransactionException(ErrorCode.DATA_CONCURRENT_MODIFY);
+            throw new FundTransactionException(ErrorCode.DATA_MODIFY_FAILED);
         }
         return accountFund;
     }
@@ -104,6 +104,72 @@ public class FundStreamEngineImpl implements IFundStreamEngine
         }
 
         return compareAndSetVersion(accountFund) ? accountFund : null;
+    }
+
+    @Override
+    public boolean freeze(Long accountId, Long amount)
+    {
+        AssertUtils.notNull(accountId);
+        AssertUtils.notNull(amount);
+        AssertUtils.isTrue(amount > 0, "Invalid freeze amount");
+
+        boolean success = true;
+        for (int retry = 0; retry < RETRIES; retry ++) {
+            AccountFund accountFund = accountFundService.findAccountFundById(accountId);
+            if (accountFund == null) {
+                throw new FundTransactionException(ErrorCode.ACCOUNT_NOT_FOUND);
+            }
+
+            // 设置账户余额，判断余额是否充足
+            long balance = accountFund.getBalance() - amount;
+            long frozenAmount = accountFund.getFrozenAmount() + amount;
+            if (balance >= 0) {
+                accountFund.setBalance(balance);
+                accountFund.setFrozenAmount(frozenAmount);
+            } else {
+                throw new FundTransactionException(ErrorCode.INSUFFICIENT_ACCOUNT_FUNDS);
+            }
+
+            success = compareAndSetVersion(accountFund);
+            if (success) {
+                break;
+            }
+        }
+
+        return success;
+    }
+
+    @Override
+    public boolean unfreeze(Long accountId, Long amount)
+    {
+        AssertUtils.notNull(accountId);
+        AssertUtils.notNull(amount);
+        AssertUtils.isTrue(amount > 0, "Invalid freeze amount");
+
+        boolean success = true;
+        for (int retry = 0; retry < RETRIES; retry ++) {
+            AccountFund accountFund = accountFundService.findAccountFundById(accountId);
+            if (accountFund == null) {
+                throw new FundTransactionException(ErrorCode.ACCOUNT_NOT_FOUND);
+            }
+
+            // 设置账户余额，判断余额是否充足
+            long balance = accountFund.getBalance() + amount;
+            long frozenAmount = accountFund.getFrozenAmount() - amount;
+            if (frozenAmount >= 0) {
+                accountFund.setBalance(balance);
+                accountFund.setFrozenAmount(frozenAmount);
+            } else {
+                throw new FundTransactionException(ErrorCode.INSUFFICIENT_ACCOUNT_FUNDS);
+            }
+
+            success = compareAndSetVersion(accountFund);
+            if (success) {
+                break;
+            }
+        }
+
+        return success;
     }
 
     private FundStatement[] wrapFundStatements(AccountFund accountFund, FundActivity[] activities)
