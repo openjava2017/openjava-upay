@@ -138,7 +138,7 @@ CREATE TABLE `upay_transaction_fee` (
 -- ----------------------------
 DROP TABLE IF EXISTS `upay_fund_frozen`;
 CREATE TABLE `upay_fund_frozen` (
-  `id` BIGINT NOT NULL AUTO_INCREMENT COMMENT '主键ID',
+  `id` BIGINT NOT NULL COMMENT '主键ID',
   `serial_no` VARCHAR(40) NOT NULL COMMENT '操作流水号',
   `account_id` BIGINT NOT NULL COMMENT '账号ID',
   `account_name` VARCHAR(20) COMMENT '用户名-冗余',

@@ -15,5 +15,9 @@ public interface IFundAccountDao extends MybatisMapperSupport
 
     FundAccount findFundAccountById(Long accountId);
 
-    int updateAccountLockStatus(@Param("id") Long id, @Param("lockStatus")AccountStatus lockStatus, @Param("when") Date when);
+    int updateAccountLockStatus(@Param("id") Long id, @Param("lockStatus")AccountStatus lockStatus,
+                                @Param("when") Date when);
+
+    int compareAndSetStatus(@Param("id") Long id, @Param("newStatus")AccountStatus newStatus,
+                            @Param("oldStatus")AccountStatus oldStatus, @Param("when") Date when);
 }

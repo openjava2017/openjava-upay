@@ -1,0 +1,32 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="org.openjava.upay.trade.dao.IFundFrozenDao">
+    <resultMap id="FundFrozenMap" type="org.openjava.upay.trade.model.FundFrozen">
+        <id column="id" property="id"/>
+        <result column="serial_no" property="serialNo"/>
+        <result column="account_id" property="accountId"/>
+        <result column="account_name" property="accountName"/>
+        <result column="type" property="type"/>
+        <result column="amount" property="amount"/>
+        <result column="status" property="status"/>
+        <result column="frozen_time" property="frozenTime"/>
+        <result column="unfrozen_time" property="unfrozenTime"/>
+        <result column="merchant_id" property="merchantId"/>
+        <result column="frozen_uid" property="frozenUid"/>
+        <result column="frozen_uname" property="frozenUname"/>
+        <result column="unfrozen_uid" property="unfrozenUid"/>
+        <result column="unfrozen_uname" property="unfrozenUname"/>
+        <result column="description" property="description"/>
+    </resultMap>
+
+    <update id="createFundFrozen" parameterType="org.openjava.upay.trade.model.FundFrozen">
+        INSERT INTO upay_fund_frozen(id, serial_no, account_id, account_name, type, amount, status, frozen_time,
+          unfrozen_time, merchant_id, frozen_uid, frozen_uname, unfrozen_uid, unfrozen_uname, description)
+        VALUES
+          (#{id}, #{serialNo}, #{accountId}, #{accountName}, #{type}, #{amount}, #{status}, #{frozenTime}, #{unfrozenTime},
+           #{merchantId}, #{frozenUid}, #{frozenUname}, #{unfrozenUid}, #{unfrozenUname}, #{description})
+    </update>
+
+</mapper>

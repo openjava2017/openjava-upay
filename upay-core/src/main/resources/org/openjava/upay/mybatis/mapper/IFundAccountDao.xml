@@ -45,4 +45,9 @@
           modified_time = #{when} WHERE id = #{id}
     </update>
 
+    <update id="compareAndSetStatus">
+        UPDATE upay_fund_account SET status = #{newStatus}, modified_time = #{when}
+          WHERE id = #{id} AND status=#{oldStatus}
+    </update>
+
 </mapper>

@@ -153,12 +153,12 @@ public class TradeTransactionServiceImpl implements ITradeTransactionService
     {
         AssertUtils.notNull(transaction.getFromId(), "Argument missed: fromId");
         AssertUtils.notNull(transaction.getToId(), "Argument missed: toId");
+        AssertUtils.notNull(transaction.getAmount(), "Argument missed: amount");
+        AssertUtils.notNull(transaction.getPassword(), "Argument missed: password");
         // 交易只支持账户支付
         AssertUtils.isTrue(transaction.getPipeline() == Pipeline.ACCOUNT,
             "Invalid transaction pipeline");
-        AssertUtils.isTrue(transaction.getAmount() != null && transaction.getAmount() > 0,
-            "Invalid transaction amount");
-        AssertUtils.notNull(transaction.getPassword(), "Argument missed: password");
+        AssertUtils.isTrue(transaction.getAmount() > 0, "Invalid transaction amount");
 
         // 交易费用只能使用账户支付
         if (ObjectUtils.isNotEmpty(transaction.getFees())) {

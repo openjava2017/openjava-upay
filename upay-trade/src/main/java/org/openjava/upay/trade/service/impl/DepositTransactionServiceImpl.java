@@ -128,8 +128,8 @@ public class DepositTransactionServiceImpl implements IDepositTransactionService
     {
         AssertUtils.notNull(transaction.getAccountId(), "Argument missed: accountId");
         AssertUtils.notNull(transaction.getPipeline(), "Argument missed: pipeline");
-        AssertUtils.isTrue(transaction.getAmount() != null && transaction.getAmount() > 0,
-            "Invalid transaction amount");
+        AssertUtils.notNull(transaction.getAmount(), "Argument missed: amount");
+        AssertUtils.isTrue(transaction.getAmount() > 0, "Invalid transaction amount");
         // 充值只支持现金和POS
         AssertUtils.isTrue(transaction.getPipeline() == Pipeline.CASH ||
             transaction.getPipeline() == Pipeline.POS, "Invalid transaction pipeline");

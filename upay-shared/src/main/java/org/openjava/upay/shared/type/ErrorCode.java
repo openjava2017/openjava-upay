@@ -30,7 +30,7 @@ public enum ErrorCode implements IEnumType
 
     INVALID_TRANSACTION_STATUS(1022, "无效的事务状态"),
 
-    DATA_MODIFY_FAILED(1050, "数据修改失败");
+    FUND_TRANSACTION_FAILED(1030, "资金事务执行失败");
 
     private int code;
     private String name;

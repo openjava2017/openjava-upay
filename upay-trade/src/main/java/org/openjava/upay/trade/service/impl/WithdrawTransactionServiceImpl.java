@@ -136,11 +136,11 @@ public class WithdrawTransactionServiceImpl implements IWithdrawTransactionServi
     private void checkWithdrawTransaction(Transaction transaction)
     {
         AssertUtils.notNull(transaction.getAccountId(), "Argument missed: accountId");
+        AssertUtils.notNull(transaction.getAmount(), "Argument missed: amount");
+        AssertUtils.isTrue(transaction.getAmount() > 0, "Invalid transaction amount");
         // 提现只支持现金
         AssertUtils.isTrue(transaction.getPipeline() == Pipeline.CASH,
             "Invalid transaction pipeline");
-        AssertUtils.isTrue(transaction.getAmount() != null && transaction.getAmount() > 0,
-            "Invalid transaction amount");
         AssertUtils.notNull(transaction.getPassword(), "Argument missed: password");
 
         if (ObjectUtils.isNotEmpty(transaction.getFees())) {

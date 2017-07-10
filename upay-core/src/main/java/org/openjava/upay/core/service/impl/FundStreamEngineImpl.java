@@ -68,7 +68,7 @@ public class FundStreamEngineImpl implements IFundStreamEngine
         }
 
         if (!success) {
-            throw new FundTransactionException(ErrorCode.DATA_MODIFY_FAILED);
+            throw new FundTransactionException(ErrorCode.FUND_TRANSACTION_FAILED);
         }
         return accountFund;
     }
@@ -103,7 +103,12 @@ public class FundStreamEngineImpl implements IFundStreamEngine
             throw new FundTransactionException(ErrorCode.INSUFFICIENT_ACCOUNT_FUNDS);
         }
 
-        return compareAndSetVersion(accountFund) ? accountFund : null;
+        boolean success = compareAndSetVersion(accountFund);
+        if (!success) {
+            throw new FundTransactionException(ErrorCode.FUND_TRANSACTION_FAILED);
+        }
+
+        return accountFund;
     }
 
     @Override

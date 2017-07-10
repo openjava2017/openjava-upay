@@ -7,7 +7,7 @@ import org.openjava.upay.proxy.util.CallableComponent;
 import org.openjava.upay.shared.type.ErrorCode;
 import org.openjava.upay.trade.domain.AccountId;
 import org.openjava.upay.trade.domain.RegisterTransaction;
-import org.openjava.upay.trade.service.IRegisterTransactionService;
+import org.openjava.upay.trade.service.IAccountTransactionService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -21,12 +21,12 @@ public class AccountServiceComponent
     private static Logger LOG = LoggerFactory.getLogger(AccountServiceComponent.class);
 
     @Resource
-    private IRegisterTransactionService registerTransactionService;
+    private IAccountTransactionService accountTransactionService;
 
     public ServiceResponse<AccountId> register(ServiceRequest<RegisterTransaction> request) throws Exception
     {
         try {
-            AccountId result = registerTransactionService.register(
+            AccountId result = accountTransactionService.register(
                     request.getContext().getMerchant(), request.getData());
             return ServiceResponse.success(result);
         } catch (IllegalArgumentException aex) {
@@ -35,6 +35,28 @@ public class AccountServiceComponent
         } catch (FundTransactionException fex) {
             LOG.error(fex.getMessage());
             return ServiceResponse.failure(fex.getCode(), fex.getMessage());
+        }
+    }
+
+    public void freeze(ServiceRequest<AccountId> request) throws Exception
+    {
+        try {
+            accountTransactionService.freezeFundAccount(request.getData().getId());
+        } catch (IllegalArgumentException aex) {
+            LOG.error(aex.getMessage());
+        } catch (FundTransactionException fex) {
+            LOG.error(fex.getMessage());
+        }
+    }
+
+    public void unfreeze(ServiceRequest<AccountId> request) throws Exception
+    {
+        try {
+            accountTransactionService.unfreezeFundAccount(request.getData().getId());
+        } catch (IllegalArgumentException aex) {
+            LOG.error(aex.getMessage());
+        } catch (FundTransactionException fex) {
+            LOG.error(fex.getMessage());
         }
     }
 }

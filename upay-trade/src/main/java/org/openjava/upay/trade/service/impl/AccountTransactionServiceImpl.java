@@ -2,15 +2,17 @@ package org.openjava.upay.trade.service.impl;
 
 import org.openjava.upay.core.dao.IAccountFundDao;
 import org.openjava.upay.core.dao.IFundAccountDao;
+import org.openjava.upay.core.exception.FundTransactionException;
 import org.openjava.upay.core.model.AccountFund;
 import org.openjava.upay.core.model.FundAccount;
 import org.openjava.upay.core.model.Merchant;
 import org.openjava.upay.core.type.AccountStatus;
 import org.openjava.upay.shared.sequence.IKeyGenerator;
 import org.openjava.upay.shared.sequence.KeyGeneratorManager;
+import org.openjava.upay.shared.type.ErrorCode;
 import org.openjava.upay.trade.domain.AccountId;
 import org.openjava.upay.trade.domain.RegisterTransaction;
-import org.openjava.upay.trade.service.IRegisterTransactionService;
+import org.openjava.upay.trade.service.IAccountTransactionService;
 import org.openjava.upay.util.AssertUtils;
 import org.openjava.upay.util.security.AESCipher;
 import org.openjava.upay.util.security.PasswordUtils;
@@ -22,10 +24,10 @@ import org.springframework.transaction.annotation.Transactional;
 import javax.annotation.Resource;
 import java.util.Date;
 
-@Service("registerTransactionService")
-public class RegisterTransactionServiceImpl implements IRegisterTransactionService
+@Service("accountTransactionService")
+public class AccountTransactionServiceImpl implements IAccountTransactionService
 {
-    private static final Logger LOG = LoggerFactory.getLogger(RegisterTransactionServiceImpl.class);
+    private static final Logger LOG = LoggerFactory.getLogger(AccountTransactionServiceImpl.class);
 
     @Resource
     private KeyGeneratorManager keyGeneratorManager;
@@ -53,6 +55,52 @@ public class RegisterTransactionServiceImpl implements IRegisterTransactionServi
         AccountId registerId = new AccountId();
         registerId.setId(account.getId());
         return registerId;
+    }
+
+    @Override
+    public void freezeFundAccount(Long accountId)
+    {
+        Date when = new Date();
+
+        AssertUtils.notNull(accountId, "Argument missed: accountId");
+        FundAccount account = fundAccountDao.findFundAccountById(accountId);
+        if (account == null || account.getStatus() == AccountStatus.LOGOFF) {
+            throw new FundTransactionException(ErrorCode.ACCOUNT_NOT_FOUND);
+        }
+        if (account.getStatus() == AccountStatus.FRONZEN) {
+            return;
+        }
+        if (account.getStatus() != AccountStatus.NORMAL) {
+            throw new FundTransactionException(ErrorCode.INVALID_ACCOUNT_STATUS);
+        }
+
+        int result = fundAccountDao.compareAndSetStatus(accountId, AccountStatus.FRONZEN, AccountStatus.NORMAL, when);
+        if (result <= 0) {
+            throw new FundTransactionException(ErrorCode.FUND_TRANSACTION_FAILED);
+        }
+    }
+
+    @Override
+    public void unfreezeFundAccount(Long accountId)
+    {
+        Date when = new Date();
+
+        AssertUtils.notNull(accountId, "Argument missed: accountId");
+        FundAccount account = fundAccountDao.findFundAccountById(accountId);
+        if (account == null || account.getStatus() == AccountStatus.LOGOFF) {
+            throw new FundTransactionException(ErrorCode.ACCOUNT_NOT_FOUND);
+        }
+        if (account.getStatus() == AccountStatus.NORMAL) {
+            return;
+        }
+        if (account.getStatus() != AccountStatus.FRONZEN) {
+            throw new FundTransactionException(ErrorCode.INVALID_ACCOUNT_STATUS);
+        }
+
+        int result = fundAccountDao.compareAndSetStatus(accountId, AccountStatus.NORMAL, AccountStatus.FRONZEN, when);
+        if (result <= 0) {
+            throw new FundTransactionException(ErrorCode.FUND_TRANSACTION_FAILED);
+        }
     }
 
     private void checkRegisterTransaction(RegisterTransaction transaction)
