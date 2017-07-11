@@ -193,7 +193,9 @@ public class KeyGeneratorManager
 
         FUND_TRANSACTION("FUND_TRANSACTION"),
 
-        FUND_ACCOUNT("FUND_ACCOUNT");
+        FUND_ACCOUNT("FUND_ACCOUNT"),
+
+        FUND_FROZEN("FUND_FROZEN");
 
         private String key;
         

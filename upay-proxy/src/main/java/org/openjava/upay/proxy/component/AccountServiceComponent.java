@@ -3,6 +3,7 @@ package org.openjava.upay.proxy.component;
 import org.openjava.upay.core.exception.FundTransactionException;
 import org.openjava.upay.proxy.domain.ServiceRequest;
 import org.openjava.upay.proxy.domain.ServiceResponse;
+import org.openjava.upay.proxy.exception.ServiceAccessException;
 import org.openjava.upay.proxy.util.CallableComponent;
 import org.openjava.upay.shared.type.ErrorCode;
 import org.openjava.upay.trade.domain.AccountId;
@@ -43,9 +44,9 @@ public class AccountServiceComponent
         try {
             accountTransactionService.freezeFundAccount(request.getData().getId());
         } catch (IllegalArgumentException aex) {
-            LOG.error(aex.getMessage());
+            throw new ServiceAccessException(aex.getMessage(), ErrorCode.ILLEGAL_ARGUMENT.getCode());
         } catch (FundTransactionException fex) {
-            LOG.error(fex.getMessage());
+            throw new ServiceAccessException(fex.getMessage(), fex.getCode());
         }
     }
 
@@ -54,9 +55,9 @@ public class AccountServiceComponent
         try {
             accountTransactionService.unfreezeFundAccount(request.getData().getId());
         } catch (IllegalArgumentException aex) {
-            LOG.error(aex.getMessage());
+            throw new ServiceAccessException(aex.getMessage(), ErrorCode.ILLEGAL_ARGUMENT.getCode());
         } catch (FundTransactionException fex) {
-            LOG.error(fex.getMessage());
+            throw new ServiceAccessException(fex.getMessage(), fex.getCode());
         }
     }
 }

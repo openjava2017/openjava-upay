@@ -21,12 +21,26 @@
         <result column="description" property="description"/>
     </resultMap>
 
-    <update id="createFundFrozen" parameterType="org.openjava.upay.trade.model.FundFrozen">
+    <update id="freezeAccountFund" parameterType="org.openjava.upay.trade.model.FundFrozen">
         INSERT INTO upay_fund_frozen(id, serial_no, account_id, account_name, type, amount, status, frozen_time,
           unfrozen_time, merchant_id, frozen_uid, frozen_uname, unfrozen_uid, unfrozen_uname, description)
         VALUES
           (#{id}, #{serialNo}, #{accountId}, #{accountName}, #{type}, #{amount}, #{status}, #{frozenTime}, #{unfrozenTime},
            #{merchantId}, #{frozenUid}, #{frozenUname}, #{unfrozenUid}, #{unfrozenUname}, #{description})
     </update>
+
+    <update id="unfreezeAccountFund" parameterType="org.openjava.upay.trade.domain.UnfrozenRequest">
+        UPDATE upay_fund_frozen SET status = #{newStatus}, unfrozen_time = #{unfrozenTime},
+          unfrozen_uid = #{unfrozenUid}, unfrozen_uname = #{unfrozenUname}
+        WHERE id = #{id} AND status = #{oldStatus}
+    </update>
+
+    <select id="findFundFrozenByNo" parameterType="string" resultMap="FundFrozenMap">
+        SELECT * FROM upay_fund_frozen WHERE serial_no = #{serialNo}
+    </select>
+
+    <select id="findFundFrozenById" parameterType="long" resultMap="FundFrozenMap">
+        SELECT * FROM upay_fund_frozen WHERE id = #{id}
+    </select>
 
 </mapper>

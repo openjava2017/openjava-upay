@@ -149,12 +149,12 @@ CREATE TABLE `upay_fund_frozen` (
   `unfrozen_time` DATETIME COMMENT '解冻时间',
   `merchant_id` BIGINT NOT NULL COMMENT '商户ID',
   `frozen_uid` BIGINT NULL COMMENT '冻结人',
-  `frozen_uname` BIGINT NULL COMMENT '冻结人名称',
+  `frozen_uname` VARCHAR(20) NULL COMMENT '冻结人名称',
   `unfrozen_uid` BIGINT NULL COMMENT '解冻人',
-  `unfrozen_uname` BIGINT NULL COMMENT '解冻人名称',
+  `unfrozen_uname` VARCHAR(20) NULL COMMENT '解冻人名称',
   `description` VARCHAR(128) COMMENT '备注',
   PRIMARY KEY (`id`),
-  KEY `idx_fund_frozen_transactionId` (`transaction_id`) USING BTREE,
+  UNIQUE KEY `idx_fund_frozen_serialNo` (`serial_no`) USING BTREE,
   KEY `idx_fund_frozen_accountId` (`account_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
