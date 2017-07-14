@@ -4,7 +4,7 @@ import org.openjava.upay.shared.type.ErrorCode;
 
 public class PackDataEnvelopException extends Exception
 {
-    private int code = 1000;
+    private int code = ErrorCode.UNKNOWN_EXCEPTION.getCode();
 
     private boolean stackTrace = true;
 
@@ -12,12 +12,12 @@ public class PackDataEnvelopException extends Exception
     {
         super(errorCode.getName());
         this.code = errorCode.getCode();
-        this.stackTrace = false;
+        stackTrace = false;
     }
 
     public PackDataEnvelopException(ErrorCode errorCode, Throwable cause)
     {
-        super(cause);
+        super(errorCode.getName(), cause);
         this.code = errorCode.getCode();
     }
 

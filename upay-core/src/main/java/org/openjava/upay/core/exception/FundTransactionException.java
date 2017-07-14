@@ -4,24 +4,13 @@ import org.openjava.upay.shared.type.ErrorCode;
 
 public class FundTransactionException extends RuntimeException
 {
-    private int code = 0;
+    private int code = ErrorCode.UNKNOWN_EXCEPTION.getCode();
 
     private boolean stackTrace = true;
-
-    public FundTransactionException()
-    {
-        super();
-    }
 
     public FundTransactionException(ErrorCode errorCode)
     {
         this(errorCode.getName(), errorCode.getCode());
-    }
-
-    public FundTransactionException(String message)
-    {
-        super(message);
-        this.stackTrace = false;
     }
 
     public FundTransactionException(String message, int code)
@@ -31,20 +20,9 @@ public class FundTransactionException extends RuntimeException
         this.stackTrace = false;
     }
 
-    public FundTransactionException(String message, boolean stackTrace)
-    {
-        super(message);
-        this.stackTrace = stackTrace;
-    }
-
     public FundTransactionException(String message, Throwable cause)
     {
         super(message, cause);
-    }
-
-    public FundTransactionException(Throwable cause)
-    {
-        super(cause);
     }
 
     @Override

@@ -53,7 +53,8 @@ public class ServiceAccessException extends RuntimeException
         return stackTrace ? super.fillInStackTrace() : this;
     }
 
-    public int getCode() {
+    public int getCode()
+    {
         return code;
     }
 

@@ -9,6 +9,7 @@ import org.openjava.upay.proxy.exception.UnpackDataEnvelopException;
 import org.openjava.upay.proxy.util.AjaxHttpUtils;
 import org.openjava.upay.proxy.util.Constants;
 import org.openjava.upay.shared.type.ErrorCode;
+import org.openjava.upay.util.AssertUtils;
 import org.openjava.upay.util.ObjectUtils;
 import org.openjava.upay.util.json.JsonUtils;
 import org.springframework.stereotype.Controller;
@@ -24,17 +25,14 @@ public class PaymentServiceEndpoint extends AbstractServiceEndpoint
     @RequestMapping("/doService.do")
     public void doService(HttpServletRequest request, HttpServletResponse response)
     {
-        ServiceResponse<?> message = null;
+        ServiceResponse<?> message;
         MessageEnvelop envelop = null;
         MessageEnvelop reply = new MessageEnvelop();
 
         try {
             String body = AjaxHttpUtils.extractHttpBody(request);
             LOG.debug("doService request received: " + body);
-            if (ObjectUtils.isEmpty(body)) {
-                LOG.error("Cannot extract message envelop from http body");
-                throw new ServiceAccessException(ErrorCode.ILLEGAL_ARGUMENT);
-            }
+            AssertUtils.notEmpty(body, "Cannot extract data from http body");
 
             envelop = JsonUtils.fromJsonString(body, MessageEnvelop.class);
             if (ObjectUtils.isEmpty(envelop.getService())) {
@@ -44,23 +42,22 @@ public class PaymentServiceEndpoint extends AbstractServiceEndpoint
                 }
                 envelop.setService(service);
             }
-
-            if (ObjectUtils.isEmpty(envelop.getService())) {
-                LOG.error("Argument missed: service");
-                throw new ServiceAccessException(ErrorCode.ILLEGAL_ARGUMENT);
-            }
+            AssertUtils.notEmpty(envelop.getService(), "Argument missed: service");
 
             RequestContext context = checkAccessPermission(envelop);
             unpackEnvelop(envelop, context.getMerchant().getSecretKey());
             message = sendEnvelop(context, envelop);
+        } catch (IllegalArgumentException aex) {
+            LOG.error(aex.getMessage());
+            message = ServiceResponse.failure(ErrorCode.ILLEGAL_ARGUMENT.getCode(), aex.getMessage());
         } catch (ServiceAccessException sax) {
-            LOG.error("Payment service access exception", sax);
+            LOG.error("Service access exception", sax);
             message = ServiceResponse.failure(sax.getCode(), sax.getMessage());
         } catch (UnpackDataEnvelopException dex) {
             LOG.error("Unpack message envelop exception", dex);
             message = ServiceResponse.failure(dex.getCode(), dex.getMessage());
-        } catch (Exception ex) {
-            LOG.error("Payment service exception", ex);
+        } catch (Throwable ex) {
+            LOG.error("Handle payment request exception", ex);
             ErrorCode errorCode = ErrorCode.UNKNOWN_EXCEPTION;
             message = ServiceResponse.failure(errorCode.getCode(), errorCode.getName());
         }

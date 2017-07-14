@@ -1,5 +1,6 @@
 package org.openjava.upay.proxy.domain;
 
+import java.lang.reflect.InvocationTargetException;
 import java.lang.reflect.Method;
 
 public class CallableServiceEndpoint<T>
@@ -16,19 +17,18 @@ public class CallableServiceEndpoint<T>
         this.requiredType = requiredType;
     }
 
-    public String endpointId()
-    {
-        return method.getName();
-    }
-
     public Class<T> getRequiredType()
     {
         return requiredType;
     }
 
-    public Object call(ServiceRequest<T> request) throws Exception
+    public Object call(ServiceRequest<T> request) throws Throwable
     {
-        return method.invoke(target, request);
+        try {
+            return method.invoke(target, request);
+        } catch (InvocationTargetException tex) {
+            throw tex.getCause() == null ? tex : tex.getCause();
+        }
     }
 
     public static <E> CallableServiceEndpoint<E> create(Object target, Method method, Class<E> requiredType)

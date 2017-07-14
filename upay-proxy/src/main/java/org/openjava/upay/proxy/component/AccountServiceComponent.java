@@ -9,8 +9,6 @@ import org.openjava.upay.shared.type.ErrorCode;
 import org.openjava.upay.trade.domain.AccountId;
 import org.openjava.upay.trade.domain.RegisterTransaction;
 import org.openjava.upay.trade.service.IAccountTransactionService;
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
 
 import javax.annotation.Resource;
@@ -19,8 +17,6 @@ import javax.annotation.Resource;
 @Component("accountServiceComponent")
 public class AccountServiceComponent
 {
-    private static Logger LOG = LoggerFactory.getLogger(AccountServiceComponent.class);
-
     @Resource
     private IAccountTransactionService accountTransactionService;
 
@@ -31,11 +27,11 @@ public class AccountServiceComponent
                     request.getContext().getMerchant(), request.getData());
             return ServiceResponse.success(result);
         } catch (IllegalArgumentException aex) {
-            LOG.error(aex.getMessage());
-            return ServiceResponse.failure(ErrorCode.ILLEGAL_ARGUMENT.getCode(), aex.getMessage());
+            throw new ServiceAccessException(aex.getMessage(), ErrorCode.ILLEGAL_ARGUMENT.getCode());
         } catch (FundTransactionException fex) {
-            LOG.error(fex.getMessage());
-            return ServiceResponse.failure(fex.getCode(), fex.getMessage());
+            throw new ServiceAccessException(fex.getMessage(), fex.getCode());
+        } catch (Exception ex) {
+            throw new ServiceAccessException("Register new fund account failed", ex);
         }
     }
 
@@ -47,6 +43,8 @@ public class AccountServiceComponent
             throw new ServiceAccessException(aex.getMessage(), ErrorCode.ILLEGAL_ARGUMENT.getCode());
         } catch (FundTransactionException fex) {
             throw new ServiceAccessException(fex.getMessage(), fex.getCode());
+        } catch (Exception ex) {
+            throw new ServiceAccessException("Freeze fund account failed", ex);
         }
     }
 
@@ -58,6 +56,8 @@ public class AccountServiceComponent
             throw new ServiceAccessException(aex.getMessage(), ErrorCode.ILLEGAL_ARGUMENT.getCode());
         } catch (FundTransactionException fex) {
             throw new ServiceAccessException(fex.getMessage(), fex.getCode());
+        } catch (Exception ex) {
+            throw new ServiceAccessException("Unfreeze fund account failed", ex);
         }
     }
 }

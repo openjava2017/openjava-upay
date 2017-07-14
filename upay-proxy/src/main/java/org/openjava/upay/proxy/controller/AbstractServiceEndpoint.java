@@ -10,6 +10,7 @@ import org.openjava.upay.proxy.exception.PackDataEnvelopException;
 import org.openjava.upay.proxy.exception.ServiceAccessException;
 import org.openjava.upay.proxy.exception.UnpackDataEnvelopException;
 import org.openjava.upay.shared.type.ErrorCode;
+import org.openjava.upay.util.AssertUtils;
 import org.openjava.upay.util.json.JsonUtils;
 import org.openjava.upay.util.security.HexUtils;
 import org.openjava.upay.util.security.KeyStoreUtils;
@@ -53,14 +54,10 @@ public abstract class AbstractServiceEndpoint
 
     protected RequestContext checkAccessPermission(MessageEnvelop envelop)
     {
-        if (envelop.getAppId() == null) {
-            LOG.error("Argument missed: Merchant Id");
-            throw new ServiceAccessException(ErrorCode.ILLEGAL_ARGUMENT);
-        }
+        AssertUtils.notNull(envelop.getAppId(), "Argument missed: Merchant Id");
 
         Merchant merchant = merchantService.findMerchantById(envelop.getAppId());
         if (merchant == null || merchant.getStatus() != MerchantStatus.NORMAL) {
-            LOG.error("Invalid merchant information");
             throw new ServiceAccessException(ErrorCode.INVALID_MERCHANT);
         }
         if (!merchant.getAccessToken().equalsIgnoreCase(envelop.getAccessToken())) {
@@ -97,11 +94,10 @@ public abstract class AbstractServiceEndpoint
         }
     }
 
-    protected final ServiceResponse<?> sendEnvelop(RequestContext context, MessageEnvelop envelop) throws Exception
+    protected final ServiceResponse<?> sendEnvelop(RequestContext context, MessageEnvelop envelop) throws Throwable
     {
         CallableServiceEndpoint<?> endpoint = callableServiceEngine.getCallableServiceEndpoint(envelop.getService());
         if (endpoint == null) {
-            LOG.error("Callable service endpoint not found: " + envelop.getService());
             throw new ServiceAccessException(ErrorCode.SERVICE_UNAVAILABLE);
         }
 
