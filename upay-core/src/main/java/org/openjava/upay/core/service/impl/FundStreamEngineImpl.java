@@ -50,7 +50,6 @@ public class FundStreamEngineImpl implements IFundStreamEngine
             FundStatement[] statements = wrapFundStatements(accountFund, activities);
             for (FundStatement statement : statements) {
                 totalAmount += statement.getAmount();
-                accountFundDao.createFundStatement(statement);
             }
 
             // 设置账户余额，判断余额是否充足
@@ -63,6 +62,10 @@ public class FundStreamEngineImpl implements IFundStreamEngine
 
             success = compareAndSetVersion(accountFund);
             if (success) {
+                // 创建资金流水
+                for (FundStatement statement : statements) {
+                    accountFundDao.createFundStatement(statement);
+                }
                 break;
             }
         }
