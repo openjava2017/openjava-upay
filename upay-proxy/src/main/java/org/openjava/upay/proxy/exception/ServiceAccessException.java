@@ -8,11 +8,6 @@ public class ServiceAccessException extends RuntimeException
 
     private boolean stackTrace = true;
 
-    public ServiceAccessException()
-    {
-        super();
-    }
-
     public ServiceAccessException(ErrorCode errorCode)
     {
         this(errorCode.getName(), errorCode.getCode());
@@ -31,20 +26,9 @@ public class ServiceAccessException extends RuntimeException
         this.stackTrace = false;
     }
 
-    public ServiceAccessException(String message, boolean stackTrace)
-    {
-        super(message);
-        this.stackTrace = stackTrace;
-    }
-
     public ServiceAccessException(String message, Throwable cause)
     {
         super(message, cause);
-    }
-
-    public ServiceAccessException(Throwable cause)
-    {
-        super(cause);
     }
 
     @Override
