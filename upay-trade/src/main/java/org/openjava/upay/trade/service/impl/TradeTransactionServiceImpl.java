@@ -164,8 +164,8 @@ public class TradeTransactionServiceImpl implements ITradeTransactionService
         if (ObjectUtils.isNotEmpty(transaction.getFees())) {
             for (Fee fee : transaction.getFees()) {
                 AssertUtils.isTrue(fee.getPipeline() == Pipeline.ACCOUNT, "Invalid fee pipeline");
-                AssertUtils.isTrue(fee.getAmount() != null && fee.getAmount() > 0,
-                    "Invalid fee amount");
+                AssertUtils.notNull(fee.getAmount(), "Argument missed: fee amount");
+                AssertUtils.isTrue(fee.getAmount() > 0, "Invalid fee amount");
             }
         }
     }

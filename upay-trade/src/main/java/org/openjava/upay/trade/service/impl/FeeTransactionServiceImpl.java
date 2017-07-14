@@ -144,8 +144,8 @@ public class FeeTransactionServiceImpl implements IFeeTransactionService
             totalFee += fee.getAmount();
             AssertUtils.isTrue(fee.getPipeline() == transaction.getPipeline(),
                 "Fee pipeline != transaction pipeline");
-            AssertUtils.isTrue(fee.getAmount() != null && fee.getAmount() > 0,
-                "Invalid fee amount");
+            AssertUtils.notNull(fee.getAmount(), "Argument missed: fee amount");
+            AssertUtils.isTrue(fee.getAmount() > 0, "Invalid fee amount");
         }
 
         // 请求中无费用总额时设置计算总额totalFee，否则请求中的费用总和必须与计算总额totalFee一致
