@@ -4,11 +4,11 @@ import org.openjava.upay.util.type.IEnumType;
 
 public enum FeeType implements IEnumType
 {
-    POUNDAGE("手续费", 1),
+    POUNDAGE("手续费", 2),
 
-    FLAT_COST("工本费", 2),
+    FLAT_COST("工本费", 3),
 
-    CASH_PLEDGE("押金", 3);
+    CASH_PLEDGE("押金", 4);
 
     private String name;
     private int code;

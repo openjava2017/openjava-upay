@@ -33,12 +33,12 @@ public class TestFundServiceEndpoint extends ServiceEndpointSupport
         transaction.put("description", "Deposit");
 
         Map<String, Object> fee = new HashMap<>();
-        fee.put("type", 1);
+        fee.put("type", 2);
         fee.put("pipeline", 2);
         fee.put("amount", 100L);
         List<Map<String, Object>> fees = new ArrayList<>();
         fees.add(fee);
-//        transaction.put("fees", fees);
+        transaction.put("fees", fees);
         String content = JsonUtils.toJsonString(transaction);
         System.out.println(content);
 
@@ -78,7 +78,7 @@ public class TestFundServiceEndpoint extends ServiceEndpointSupport
         transaction.put("description", "Withdraw");
 
         Map<String, Object> fee = new HashMap<>();
-        fee.put("type", 1);
+        fee.put("type", 2);
         fee.put("pipeline", 2);
         fee.put("amount", 100L);
         List<Map<String, Object>> fees = new ArrayList<>();
@@ -124,7 +124,7 @@ public class TestFundServiceEndpoint extends ServiceEndpointSupport
 
         List<Map<String, Object>> fees = new ArrayList<>();
         Map<String, Object> fee = new HashMap<>();
-        fee.put("type", 1);
+        fee.put("type", 2);
         fee.put("pipeline", 2);
         fee.put("amount", 100L);
         fees.add(fee);
@@ -171,7 +171,7 @@ public class TestFundServiceEndpoint extends ServiceEndpointSupport
 
         List<Map<String, Object>> fees = new ArrayList<>();
         Map<String, Object> fee = new HashMap<>();
-        fee.put("type", 1);
+        fee.put("type", 2);
         fee.put("pipeline", 2);
         fee.put("amount", 100L);
         fees.add(fee);
@@ -208,6 +208,6 @@ public class TestFundServiceEndpoint extends ServiceEndpointSupport
         PrivateKey privateKey = KeyStoreUtils.getPrivateKey(privateKeyIn, "JKS", "abcd1234", "clientkey", "abcd1234");
         PublicKey publicKey = KeyStoreUtils.getPublicKey(publicKeyIn, "JKS", "abcd1234", "upaykey");
         TestFundServiceEndpoint endpoint = new TestFundServiceEndpoint();
-        endpoint.testAccountTrade(privateKey, publicKey);
+        endpoint.testDepositAccount(privateKey, publicKey);
     }
 }

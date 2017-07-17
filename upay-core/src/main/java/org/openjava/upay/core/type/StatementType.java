@@ -2,26 +2,29 @@ package org.openjava.upay.core.type;
 
 import org.openjava.upay.util.type.IEnumType;
 
-public enum Action implements IEnumType
+public enum StatementType implements IEnumType
 {
-    INCOME("收入", 1),
+    FUND("资金流水", 1),
 
-    OUTGO("支出", 2);
+    POUNDAGE("手续费流水", 2),
+
+    FLAT_COST("工本费流水", 3),
+
+    CASH_PLEDGE("押金流水", 4);
 
     private String name;
     private int code;
 
-    Action(String name, int code)
+    StatementType(String name, int code)
     {
         this.name = name;
         this.code = code;
     }
 
-    public static Action getAction(int code)
+    public static StatementType getType(int code)
     {
-        for (Action type : Action.values()) {
-            if (type.getCode() == code)
-            {
+        for (StatementType type : StatementType.values()) {
+            if (type.getCode() == code) {
                 return type;
             }
         }

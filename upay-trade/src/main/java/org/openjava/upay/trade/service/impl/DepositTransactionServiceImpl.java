@@ -9,6 +9,7 @@ import org.openjava.upay.core.service.IFundStreamEngine;
 import org.openjava.upay.core.type.AccountStatus;
 import org.openjava.upay.core.type.Action;
 import org.openjava.upay.core.type.Pipeline;
+import org.openjava.upay.core.type.StatementType;
 import org.openjava.upay.shared.sequence.IKeyGenerator;
 import org.openjava.upay.shared.sequence.ISerialKeyGenerator;
 import org.openjava.upay.shared.sequence.KeyGeneratorManager;
@@ -110,6 +111,7 @@ public class DepositTransactionServiceImpl implements IDepositTransactionService
         activity.setTransactionId(fundTransaction.getId());
         activity.setPipeline(fundTransaction.getPipeline());
         activity.setAction(Action.INCOME);
+        activity.setType(StatementType.FUND);
         activity.setAmount(fundTransaction.getAmount());
         activity.setDescription(fundTransaction.getType().getName());
         activities.add(activity);

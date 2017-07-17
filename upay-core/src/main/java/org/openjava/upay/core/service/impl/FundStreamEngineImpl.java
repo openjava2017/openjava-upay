@@ -194,6 +194,7 @@ public class FundStreamEngineImpl implements IFundStreamEngine
             statement.setAccountId(accountFund.getId());
             statement.setTransactionId(activity.getTransactionId());
             statement.setPipeline(activity.getPipeline());
+            statement.setType(activity.getType());
             statement.setAction(activity.getAction());
             statement.setBalance(balance);
             if (activity.getAction() == Action.INCOME) {

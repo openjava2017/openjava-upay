@@ -40,8 +40,8 @@
 
     <update id="createFundStatement" parameterType="org.openjava.upay.core.model.FundStatement">
         <![CDATA[
-            INSERT upay_fund_statement(account_id, transaction_id, pipeline, action, balance, amount, description, created_time)
-            VALUES (#{accountId}, #{transactionId}, #{pipeline}, #{action}, #{balance}, #{amount}, #{description}, #{createdTime})
+            INSERT upay_fund_statement(account_id, transaction_id, pipeline, action, type, balance, amount, description, created_time)
+            VALUES (#{accountId}, #{transactionId}, #{pipeline}, #{action}, #{type}, #{balance}, #{amount}, #{description}, #{createdTime})
         ]]>
     </update>
 

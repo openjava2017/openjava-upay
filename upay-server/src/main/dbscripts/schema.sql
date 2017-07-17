@@ -82,6 +82,7 @@ CREATE TABLE `upay_fund_statement` (
   `transaction_id` BIGINT NOT NULL COMMENT '事务ID',
   `pipeline` TINYINT UNSIGNED NOT NULL COMMENT '渠道类型-现金 账户等',
   `action` TINYINT UNSIGNED NOT NULL COMMENT '动作-收入 支出',
+  `type` TINYINT UNSIGNED NOT NULL COMMENT '流水类型-资金流水 手续费流水等',
   `balance` BIGINT NOT NULL COMMENT '(前)余额-分',
   `amount` BIGINT NOT NULL COMMENT '金额-分(正值 负值)',
   `description` VARCHAR(128) COMMENT '备注',

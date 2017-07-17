@@ -3,6 +3,7 @@ package org.openjava.upay.trade.util;
 import org.openjava.upay.core.domain.FundActivity;
 import org.openjava.upay.core.type.Action;
 import org.openjava.upay.core.type.Pipeline;
+import org.openjava.upay.core.type.StatementType;
 import org.openjava.upay.trade.domain.Fee;
 import org.openjava.upay.trade.model.TransactionFee;
 
@@ -35,6 +36,7 @@ public abstract class TransactionServiceHelper
                 feeActivity.setTransactionId(fee.getTransactionId());
                 feeActivity.setPipeline(fee.getPipeline());
                 feeActivity.setAction(Action.OUTGO);
+                feeActivity.setType(StatementType.getType(fee.getType().getCode()));
                 feeActivity.setAmount(fee.getAmount());
                 feeActivity.setDescription(fee.getType().getName() + Action.OUTGO.getName());
                 activities.add(feeActivity);
@@ -50,6 +52,7 @@ public abstract class TransactionServiceHelper
             feeActivity.setTransactionId(fee.getTransactionId());
             feeActivity.setPipeline(fee.getPipeline());
             feeActivity.setAction(Action.INCOME);
+            feeActivity.setType(StatementType.getType(fee.getType().getCode()));
             feeActivity.setAmount(fee.getAmount());
             feeActivity.setDescription(fee.getType().getName() + Action.INCOME.getName());
             activities.add(feeActivity);

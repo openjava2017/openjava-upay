@@ -17,6 +17,7 @@
         <typeHandler handler="org.openjava.upay.shared.mybatis.GenericEnumTypeHandler" javaType="org.openjava.upay.core.type.MerchantStatus"/>
         <typeHandler handler="org.openjava.upay.shared.mybatis.GenericEnumTypeHandler" javaType="org.openjava.upay.core.type.Pipeline"/>
         <typeHandler handler="org.openjava.upay.shared.mybatis.GenericEnumTypeHandler" javaType="org.openjava.upay.core.type.Action"/>
+        <typeHandler handler="org.openjava.upay.shared.mybatis.GenericEnumTypeHandler" javaType="org.openjava.upay.core.type.StatementType"/>
         <typeHandler handler="org.openjava.upay.shared.mybatis.GenericEnumTypeHandler" javaType="org.openjava.upay.core.type.AccountType"/>
         <typeHandler handler="org.openjava.upay.shared.mybatis.GenericEnumTypeHandler" javaType="org.openjava.upay.core.type.AccountStatus"/>
         <typeHandler handler="org.openjava.upay.shared.mybatis.GenericEnumTypeHandler" javaType="org.openjava.upay.trade.type.FeeType"/>
