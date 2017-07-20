@@ -10,8 +10,8 @@
         <result column="type" property="type"/>
         <result column="from_id" property="fromId"/>
         <result column="from_name" property="fromName"/>
-        <result column="to_id" property="toId"/>
-        <result column="to_name" property="toName"/>
+        <result column="target_id" property="targetId"/>
+        <result column="target_name" property="targetName"/>
         <result column="pipeline" property="pipeline"/>
         <result column="amount" property="amount"/>
         <result column="status" property="status"/>
@@ -31,11 +31,11 @@
 
     <update id="createFundTransaction" parameterType="org.openjava.upay.trade.model.FundTransaction">
         INSERT INTO upay_fund_transaction
-            (id, merchant_id, serial_no, type, from_id, from_name, to_id,
-            to_name, pipeline, amount, status, description, created_time, modified_time)
+            (id, merchant_id, serial_no, type, from_id, from_name, target_id,
+            target_name, pipeline, amount, status, description, created_time, modified_time)
         VALUES
-            (#{id}, #{merchantId}, #{serialNo}, #{type}, #{fromId}, #{fromName}, #{toId},
-             #{toName}, #{pipeline}, #{amount}, #{status}, #{description}, #{createdTime}, #{modifiedTime})
+            (#{id}, #{merchantId}, #{serialNo}, #{type}, #{fromId}, #{fromName}, #{targetId},
+             #{targetName}, #{pipeline}, #{amount}, #{status}, #{description}, #{createdTime}, #{modifiedTime})
     </update>
 
     <update id="createTransactionFee" parameterType="org.openjava.upay.trade.model.TransactionFee">

@@ -20,7 +20,7 @@
 
     <select id="findAccountFundById" parameterType="long" resultMap="AccountFundMap">
         <![CDATA[
-            SELECT * FROM upay_account_fund WHERE id = #{accountId}
+            SELECT * FROM upay_account_fund WHERE id = #{targetId}
         ]]>
     </select>
 
@@ -41,7 +41,7 @@
     <update id="createFundStatement" parameterType="org.openjava.upay.core.model.FundStatement">
         <![CDATA[
             INSERT upay_fund_statement(account_id, transaction_id, pipeline, action, type, balance, amount, description, created_time)
-            VALUES (#{accountId}, #{transactionId}, #{pipeline}, #{action}, #{type}, #{balance}, #{amount}, #{description}, #{createdTime})
+            VALUES (#{targetId}, #{transactionId}, #{pipeline}, #{action}, #{type}, #{balance}, #{amount}, #{description}, #{createdTime})
         ]]>
     </update>
 

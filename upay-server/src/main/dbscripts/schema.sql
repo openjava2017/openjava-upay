@@ -104,8 +104,8 @@ CREATE TABLE `upay_fund_transaction` (
   `type` TINYINT UNSIGNED NOT NULL COMMENT '业务类型-充值 提现 交易 退款等',
   `from_id` BIGINT COMMENT '账号ID',
   `from_name` VARCHAR(20) COMMENT '用户名-冗余',
-  `to_id` BIGINT NOT NULL COMMENT '账号ID',
-  `to_name` VARCHAR(20) COMMENT '用户名-冗余',
+  `target_id` BIGINT NOT NULL COMMENT '账号ID',
+  `target_name` VARCHAR(20) COMMENT '用户名-冗余',
   `pipeline` TINYINT UNSIGNED NOT NULL COMMENT '渠道类型-现金 账户余额 工商银行等',
   `amount` BIGINT NOT NULL COMMENT '金额-分(正值)',
   `status` TINYINT UNSIGNED NOT NULL COMMENT '状态-申请 完成 失败等',
@@ -114,7 +114,7 @@ CREATE TABLE `upay_fund_transaction` (
   `modified_time` DATETIME COMMENT '修改时间',
   PRIMARY KEY (`id`),
   KEY `idx_fund_transaction_fromId` (`from_id`) USING BTREE,
-  KEY `idx_fund_transaction_toId` (`to_id`) USING BTREE,
+  KEY `idx_fund_transaction_targetId` (`target_id`) USING BTREE,
   UNIQUE KEY `idx_fund_transaction_serialNo` (`serial_no`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
@@ -141,8 +141,8 @@ DROP TABLE IF EXISTS `upay_fund_frozen`;
 CREATE TABLE `upay_fund_frozen` (
   `id` BIGINT NOT NULL COMMENT '主键ID',
   `serial_no` VARCHAR(40) NOT NULL COMMENT '操作流水号',
-  `account_id` BIGINT NOT NULL COMMENT '账号ID',
-  `account_name` VARCHAR(20) COMMENT '用户名-冗余',
+  `target_id` BIGINT NOT NULL COMMENT '账号ID',
+  `target_name` VARCHAR(20) COMMENT '用户名-冗余',
   `type` TINYINT UNSIGNED NOT NULL COMMENT '冻结类型-系统冻结 交易冻结',
   `amount` BIGINT NOT NULL COMMENT '金额-分',
   `status` TINYINT UNSIGNED NOT NULL COMMENT '冻结状态-冻结 解冻',
@@ -156,7 +156,7 @@ CREATE TABLE `upay_fund_frozen` (
   `description` VARCHAR(128) COMMENT '备注',
   PRIMARY KEY (`id`),
   UNIQUE KEY `idx_fund_frozen_serialNo` (`serial_no`) USING BTREE,
-  KEY `idx_fund_frozen_accountId` (`account_id`) USING BTREE
+  KEY `idx_fund_frozen_targetId` (`target_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------

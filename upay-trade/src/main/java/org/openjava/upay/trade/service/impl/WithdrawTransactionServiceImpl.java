@@ -21,7 +21,7 @@ import org.openjava.upay.trade.domain.Transaction;
 import org.openjava.upay.trade.domain.TransactionId;
 import org.openjava.upay.trade.model.FundTransaction;
 import org.openjava.upay.trade.model.TransactionFee;
-import org.openjava.upay.trade.service.IFundTransactionService;
+import org.openjava.upay.trade.service.IPasswordService;
 import org.openjava.upay.trade.service.IWithdrawTransactionService;
 import org.openjava.upay.trade.type.TransactionStatus;
 import org.openjava.upay.trade.type.TransactionType;
@@ -56,7 +56,7 @@ public class WithdrawTransactionServiceImpl implements IWithdrawTransactionServi
     private IFundStreamEngine fundStreamEngine;
 
     @Resource
-    private IFundTransactionService fundTransactionService;
+    private IPasswordService passwordService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -77,7 +77,7 @@ public class WithdrawTransactionServiceImpl implements IWithdrawTransactionServi
         }
 
         // 验证买家账户状态和密码
-        fundTransactionService.checkPaymentPermission(account, transaction.getPassword());
+        passwordService.checkPaymentPermission(account, transaction.getPassword());
         IKeyGenerator keyGenerator = keyGeneratorManager.getKeyGenerator(SequenceKey.FUND_TRANSACTION);
         ISerialKeyGenerator serialKeyGenerator = keyGeneratorManager.getSerialKeyGenerator();
         if (transaction.getSerialNo() == null) {
@@ -89,8 +89,8 @@ public class WithdrawTransactionServiceImpl implements IWithdrawTransactionServi
         fundTransaction.setMerchantId(merchant.getId());
         fundTransaction.setSerialNo(transaction.getSerialNo());
         fundTransaction.setType(TransactionType.WITHDRAW);
-        fundTransaction.setToId(transaction.getAccountId());
-        fundTransaction.setToName(account.getName());
+        fundTransaction.setTargetId(transaction.getAccountId());
+        fundTransaction.setTargetName(account.getName());
         fundTransaction.setPipeline(transaction.getPipeline());
         fundTransaction.setAmount(transaction.getAmount());
         fundTransaction.setStatus(TransactionStatus.STATUS_COMPLETED);
@@ -126,7 +126,7 @@ public class WithdrawTransactionServiceImpl implements IWithdrawTransactionServi
         if (ObjectUtils.isNotEmpty(fees)) {
             TransactionServiceHelper.wrapFeeActivitiesForAccount(activities, fees);
         }
-        fundStreamEngine.submit(fundTransaction.getToId(), activities.toArray(new FundActivity[0]));
+        fundStreamEngine.submit(fundTransaction.getTargetId(), activities.toArray(new FundActivity[0]));
 
         TransactionId transactionId = new TransactionId();
         transactionId.setId(fundTransaction.getId());

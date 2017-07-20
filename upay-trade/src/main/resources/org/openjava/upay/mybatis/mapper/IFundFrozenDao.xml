@@ -6,8 +6,8 @@
     <resultMap id="FundFrozenMap" type="org.openjava.upay.trade.model.FundFrozen">
         <id column="id" property="id"/>
         <result column="serial_no" property="serialNo"/>
-        <result column="account_id" property="accountId"/>
-        <result column="account_name" property="accountName"/>
+        <result column="target_id" property="targetId"/>
+        <result column="target_name" property="targetName"/>
         <result column="type" property="type"/>
         <result column="amount" property="amount"/>
         <result column="status" property="status"/>
@@ -22,10 +22,10 @@
     </resultMap>
 
     <update id="freezeAccountFund" parameterType="org.openjava.upay.trade.model.FundFrozen">
-        INSERT INTO upay_fund_frozen(id, serial_no, account_id, account_name, type, amount, status, frozen_time,
+        INSERT INTO upay_fund_frozen(id, serial_no, target_id, target_name, type, amount, status, frozen_time,
           unfrozen_time, merchant_id, frozen_uid, frozen_uname, unfrozen_uid, unfrozen_uname, description)
         VALUES
-          (#{id}, #{serialNo}, #{accountId}, #{accountName}, #{type}, #{amount}, #{status}, #{frozenTime}, #{unfrozenTime},
+          (#{id}, #{serialNo}, #{targetId}, #{targetName}, #{type}, #{amount}, #{status}, #{frozenTime}, #{unfrozenTime},
            #{merchantId}, #{frozenUid}, #{frozenUname}, #{unfrozenUid}, #{unfrozenUname}, #{description})
     </update>
 

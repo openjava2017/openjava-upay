@@ -9,8 +9,8 @@ public class FundFrozen
 {
     private Long id;
     private String serialNo;
-    private Long accountId;
-    private String accountName;
+    private Long targetId;
+    private String targetName;
     private FrozenType type;
     private Long amount;
     private FrozenStatus status;
@@ -43,24 +43,24 @@ public class FundFrozen
         this.serialNo = serialNo;
     }
 
-    public Long getAccountId()
+    public Long getTargetId()
     {
-        return accountId;
+        return targetId;
     }
 
-    public void setAccountId(Long accountId)
+    public void setTargetId(Long targetId)
     {
-        this.accountId = accountId;
+        this.targetId = targetId;
     }
 
-    public String getAccountName()
+    public String getTargetName()
     {
-        return accountName;
+        return targetName;
     }
 
-    public void setAccountName(String accountName)
+    public void setTargetName(String targetName)
     {
-        this.accountName = accountName;
+        this.targetName = targetName;
     }
 
     public FrozenType getType()

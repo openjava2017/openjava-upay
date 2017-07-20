@@ -14,8 +14,8 @@ public class FundTransaction
     private TransactionType type;
     private Long fromId;
     private String fromName;
-    private Long toId;
-    private String toName;
+    private Long targetId;
+    private String targetName;
     private Pipeline pipeline;
     private Long amount;
     private TransactionStatus status;
@@ -83,24 +83,24 @@ public class FundTransaction
         this.fromName = fromName;
     }
 
-    public Long getToId()
+    public Long getTargetId()
     {
-        return toId;
+        return targetId;
     }
 
-    public void setToId(Long toId)
+    public void setTargetId(Long targetId)
     {
-        this.toId = toId;
+        this.targetId = targetId;
     }
 
-    public String getToName()
+    public String getTargetName()
     {
-        return toName;
+        return targetName;
     }
 
-    public void setToName(String toName)
+    public void setTargetName(String targetName)
     {
-        this.toName = toName;
+        this.targetName = targetName;
     }
 
     public Pipeline getPipeline()

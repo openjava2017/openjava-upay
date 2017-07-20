@@ -20,7 +20,7 @@ import org.openjava.upay.trade.domain.TransactionId;
 import org.openjava.upay.trade.model.FundTransaction;
 import org.openjava.upay.trade.model.TransactionFee;
 import org.openjava.upay.trade.service.IFeeTransactionService;
-import org.openjava.upay.trade.service.IFundTransactionService;
+import org.openjava.upay.trade.service.IPasswordService;
 import org.openjava.upay.trade.type.TransactionStatus;
 import org.openjava.upay.trade.type.TransactionType;
 import org.openjava.upay.trade.util.TransactionServiceHelper;
@@ -54,7 +54,7 @@ public class FeeTransactionServiceImpl implements IFeeTransactionService
     private KeyGeneratorManager keyGeneratorManager;
 
     @Resource
-    private IFundTransactionService fundTransactionService;
+    private IPasswordService passwordService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -75,7 +75,7 @@ public class FeeTransactionServiceImpl implements IFeeTransactionService
         }
         if (transaction.getPipeline() == Pipeline.ACCOUNT) {
             // 缴费使用账户支付需要验证账户状态和密码
-            fundTransactionService.checkPaymentPermission(account, transaction.getPassword());
+            passwordService.checkPaymentPermission(account, transaction.getPassword());
         }
 
         IKeyGenerator keyGenerator = keyGeneratorManager.getKeyGenerator(SequenceKey.FUND_TRANSACTION);
@@ -89,8 +89,8 @@ public class FeeTransactionServiceImpl implements IFeeTransactionService
         fundTransaction.setMerchantId(merchant.getId());
         fundTransaction.setSerialNo(transaction.getSerialNo());
         fundTransaction.setType(TransactionType.PAY_FEE);
-        fundTransaction.setToId(account.getId());
-        fundTransaction.setToName(account.getName());
+        fundTransaction.setTargetId(account.getId());
+        fundTransaction.setTargetName(account.getName());
         fundTransaction.setPipeline(transaction.getPipeline());
         fundTransaction.setAmount(transaction.getAmount());
         fundTransaction.setStatus(TransactionStatus.STATUS_COMPLETED);
@@ -117,7 +117,7 @@ public class FeeTransactionServiceImpl implements IFeeTransactionService
         if (transaction.getPipeline() == Pipeline.ACCOUNT && ObjectUtils.isNotEmpty(fees)) {
             List<FundActivity> activities = new ArrayList<>();
             TransactionServiceHelper.wrapFeeActivitiesForAccount(activities, fees);
-            fundStreamEngine.submit(fundTransaction.getToId(), activities.toArray(new FundActivity[0]));
+            fundStreamEngine.submit(fundTransaction.getTargetId(), activities.toArray(new FundActivity[0]));
         }
 
         TransactionId transactionId = new TransactionId();

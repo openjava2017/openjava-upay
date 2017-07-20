@@ -21,7 +21,7 @@ import org.openjava.upay.trade.domain.TradeTransaction;
 import org.openjava.upay.trade.domain.TransactionId;
 import org.openjava.upay.trade.model.FundTransaction;
 import org.openjava.upay.trade.model.TransactionFee;
-import org.openjava.upay.trade.service.IFundTransactionService;
+import org.openjava.upay.trade.service.IPasswordService;
 import org.openjava.upay.trade.service.ITradeTransactionService;
 import org.openjava.upay.trade.type.TransactionStatus;
 import org.openjava.upay.trade.type.TransactionType;
@@ -56,7 +56,7 @@ public class TradeTransactionServiceImpl implements ITradeTransactionService
     private IFundStreamEngine fundStreamEngine;
 
     @Resource
-    private IFundTransactionService fundTransactionService;
+    private IPasswordService passwordService;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
@@ -82,7 +82,7 @@ public class TradeTransactionServiceImpl implements ITradeTransactionService
         }
 
         // 验证买家账户状态和密码
-        fundTransactionService.checkPaymentPermission(fromAccount, transaction.getPassword());
+        passwordService.checkPaymentPermission(fromAccount, transaction.getPassword());
         IKeyGenerator keyGenerator = keyGeneratorManager.getKeyGenerator(SequenceKey.FUND_TRANSACTION);
         ISerialKeyGenerator serialKeyGenerator = keyGeneratorManager.getSerialKeyGenerator();
         if (transaction.getSerialNo() == null) {
@@ -96,8 +96,8 @@ public class TradeTransactionServiceImpl implements ITradeTransactionService
         fundTransaction.setType(TransactionType.TRADE);
         fundTransaction.setFromId(transaction.getFromId());
         fundTransaction.setFromName(fromAccount.getName());
-        fundTransaction.setToId(transaction.getToId());
-        fundTransaction.setToName(toAccount.getName());
+        fundTransaction.setTargetId(transaction.getToId());
+        fundTransaction.setTargetName(toAccount.getName());
         fundTransaction.setPipeline(transaction.getPipeline());
         fundTransaction.setAmount(transaction.getAmount());
         fundTransaction.setStatus(TransactionStatus.STATUS_COMPLETED);
@@ -143,7 +143,7 @@ public class TradeTransactionServiceImpl implements ITradeTransactionService
         if (ObjectUtils.isNotEmpty(fees)) {
             TransactionServiceHelper.wrapFeeActivitiesForAccount(activities, fees);
         }
-        fundStreamEngine.submit(fundTransaction.getToId(), activities.toArray(new FundActivity[0]));
+        fundStreamEngine.submit(fundTransaction.getTargetId(), activities.toArray(new FundActivity[0]));
 
         TransactionId transactionId = new TransactionId();
         transactionId.setId(fundTransaction.getId());

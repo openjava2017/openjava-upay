@@ -80,8 +80,8 @@ public class DepositTransactionServiceImpl implements IDepositTransactionService
         fundTransaction.setMerchantId(merchant.getId());
         fundTransaction.setSerialNo(transaction.getSerialNo());
         fundTransaction.setType(TransactionType.DEPOSIT);
-        fundTransaction.setToId(transaction.getAccountId());
-        fundTransaction.setToName(account.getName());
+        fundTransaction.setTargetId(transaction.getAccountId());
+        fundTransaction.setTargetName(account.getName());
         fundTransaction.setPipeline(transaction.getPipeline());
         fundTransaction.setAmount(transaction.getAmount());
         fundTransaction.setStatus(TransactionStatus.STATUS_COMPLETED);
@@ -117,7 +117,7 @@ public class DepositTransactionServiceImpl implements IDepositTransactionService
         if (ObjectUtils.isNotEmpty(fees)) {
             TransactionServiceHelper.wrapFeeActivitiesForAccount(activities, fees);
         }
-        fundStreamEngine.submit(fundTransaction.getToId(), activities.toArray(new FundActivity[0]));
+        fundStreamEngine.submit(fundTransaction.getTargetId(), activities.toArray(new FundActivity[0]));
 
         TransactionId transactionId = new TransactionId();
         transactionId.setId(fundTransaction.getId());
