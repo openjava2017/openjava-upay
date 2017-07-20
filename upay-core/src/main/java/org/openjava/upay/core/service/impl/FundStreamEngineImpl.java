@@ -40,6 +40,7 @@ public class FundStreamEngineImpl implements IFundStreamEngine
 
         boolean success = true;
         AccountFund accountFund = null;
+        FundStatement[] statements = null;
         for (int retry = 0; retry < RETRIES; retry ++) {
             accountFund = accountFundService.findAccountFundById(accountId);
             if (accountFund == null) {
@@ -47,7 +48,7 @@ public class FundStreamEngineImpl implements IFundStreamEngine
             }
 
             long totalAmount = 0;
-            FundStatement[] statements = wrapFundStatements(accountFund, activities);
+            statements = wrapFundStatements(accountFund, activities);
             for (FundStatement statement : statements) {
                 totalAmount += statement.getAmount();
             }
@@ -62,10 +63,6 @@ public class FundStreamEngineImpl implements IFundStreamEngine
 
             success = compareAndSetVersion(accountFund);
             if (success) {
-                // 创建资金流水
-                for (FundStatement statement : statements) {
-                    accountFundDao.createFundStatement(statement);
-                }
                 break;
             }
         }
@@ -73,6 +70,12 @@ public class FundStreamEngineImpl implements IFundStreamEngine
         if (!success) {
             throw new FundTransactionException(ErrorCode.FUND_TRANSACTION_FAILED);
         }
+
+        // 创建资金流水
+        for (FundStatement statement : statements) {
+            accountFundDao.createFundStatement(statement);
+        }
+
         return accountFund;
     }
 
