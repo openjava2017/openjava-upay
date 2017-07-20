@@ -86,8 +86,7 @@ public class TradeTransactionServiceImpl implements ITradeTransactionService
         IKeyGenerator keyGenerator = keyGeneratorManager.getKeyGenerator(SequenceKey.FUND_TRANSACTION);
         ISerialKeyGenerator serialKeyGenerator = keyGeneratorManager.getSerialKeyGenerator();
         if (transaction.getSerialNo() == null) {
-            transaction.setSerialNo(serialKeyGenerator.nextSerialNo(
-                String.valueOf(TransactionType.TRADE.getCode()), TransactionType.class.getSimpleName()));
+            transaction.setSerialNo(serialKeyGenerator.nextSerialNo(String.valueOf(TransactionType.TRADE.getCode())));
         }
 
         FundTransaction fundTransaction = new FundTransaction();

@@ -30,7 +30,7 @@ public class WebApplicationController extends HttlLayoutViewSupport
     @RequestMapping(value = "/test.action")
     public @ResponseBody AjaxMessage test()
     {
-        IKeyGenerator keyGenerator = keyGeneratorManager.getKeyGenerator(KeyGeneratorManager.SequenceKey.TEST_SEQUENCE);
+        IKeyGenerator keyGenerator = keyGeneratorManager.getKeyGenerator(KeyGeneratorManager.SequenceKey.SERIAL_SEQUENCE);
         return AjaxMessage.success("成功:" +  keyGenerator.nextId());
     }
 

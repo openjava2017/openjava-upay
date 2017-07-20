@@ -72,8 +72,7 @@ public class DepositTransactionServiceImpl implements IDepositTransactionService
         IKeyGenerator keyGenerator = keyGeneratorManager.getKeyGenerator(SequenceKey.FUND_TRANSACTION);
         ISerialKeyGenerator serialKeyGenerator = keyGeneratorManager.getSerialKeyGenerator();
         if (transaction.getSerialNo() == null) {
-            transaction.setSerialNo(serialKeyGenerator.nextSerialNo(
-                String.valueOf(TransactionType.DEPOSIT.getCode()), TransactionType.class.getSimpleName()));
+            transaction.setSerialNo(serialKeyGenerator.nextSerialNo(String.valueOf(TransactionType.DEPOSIT.getCode())));
         }
 
         FundTransaction fundTransaction = new FundTransaction();

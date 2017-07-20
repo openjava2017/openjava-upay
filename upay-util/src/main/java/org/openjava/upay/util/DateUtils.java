@@ -12,6 +12,8 @@ public class DateUtils
 
     public final static String YYYYMMDD = "yyyyMMdd";
 
+    public final static String YYMMDD = "yyMMdd";
+
     public static String formatNow(String format)
     {
         return format(new Date(), format);

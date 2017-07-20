@@ -81,8 +81,7 @@ public class WithdrawTransactionServiceImpl implements IWithdrawTransactionServi
         IKeyGenerator keyGenerator = keyGeneratorManager.getKeyGenerator(SequenceKey.FUND_TRANSACTION);
         ISerialKeyGenerator serialKeyGenerator = keyGeneratorManager.getSerialKeyGenerator();
         if (transaction.getSerialNo() == null) {
-            transaction.setSerialNo(serialKeyGenerator.nextSerialNo(
-                String.valueOf(TransactionType.WITHDRAW.getCode()), TransactionType.class.getSimpleName()));
+            transaction.setSerialNo(serialKeyGenerator.nextSerialNo(String.valueOf(TransactionType.WITHDRAW.getCode())));
         }
 
         FundTransaction fundTransaction = new FundTransaction();

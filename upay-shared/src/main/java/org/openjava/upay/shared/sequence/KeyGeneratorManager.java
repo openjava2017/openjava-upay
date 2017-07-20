@@ -1,12 +1,10 @@
 package org.openjava.upay.shared.sequence;
 
 import com.alibaba.druid.util.StringUtils;
-import org.openjava.upay.shared.exception.CacheSystemException;
 import org.openjava.upay.shared.model.PersistentSequenceKey;
 import org.openjava.upay.shared.redis.IRedisSystemService;
 import org.openjava.upay.util.AssertUtils;
 import org.openjava.upay.util.DateUtils;
-import org.openjava.upay.util.ObjectUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Component;
@@ -23,18 +21,15 @@ import java.util.concurrent.locks.ReentrantLock;
 public class KeyGeneratorManager
 {
     private static Logger LOG = LoggerFactory.getLogger(KeyGeneratorManager.class);
-    private static final String SEQUENCEID_PREFIX = "application:sequence:";
 
-    private final ConcurrentMap<KeyEntry, IKeyGenerator> keyGenerators
-        = new ConcurrentHashMap<KeyEntry, IKeyGenerator>();
+    private final ConcurrentMap<KeyEntry, IKeyGenerator> keyGenerators = new ConcurrentHashMap<KeyEntry, IKeyGenerator>();
+
     private final ISerialKeyGenerator keyGenerator = new SerialKeyGeneratorImpl();
+
     private Lock locker = new ReentrantLock();
     
     @Resource
     private IKeySynchronizer keySynchronizer;
-    
-    @Resource
-    private IRedisSystemService redisSystemService;
     
     public IKeyGenerator getKeyGenerator(SequenceKey key)
     {
@@ -161,35 +156,19 @@ public class KeyGeneratorManager
     private class SerialKeyGeneratorImpl implements ISerialKeyGenerator
     {
         @Override
-        public String nextSerialNo(String typeCode, String scope)
+        public String nextSerialNo(String typeCode)
         {
             AssertUtils.notEmpty(typeCode, "Miss typeCode arguments");
-
-            String day = DateUtils.format(new Date(), DateUtils.YYYYMMDD);
-            String sequenceKey = SEQUENCEID_PREFIX + (ObjectUtils.isNotEmpty(scope) ?
-                scope.concat("_").concat(typeCode).concat("_").concat(day) : typeCode.concat("_").concat(day));
-            try {
-                //TODO: Serious problem here, maybe duplicate servialNo when REDIS down
-                Long sequenceId = redisSystemService.incAndGet(sequenceKey, 60 * 60 * 24 * 4); // 4 days for expire policy
-                String prefix = day.concat(typeCode);
-                if (sequenceId < 10) {
-                    return prefix.concat("000").concat(Long.toString(sequenceId));
-                } else if (sequenceId < 100) {
-                    return prefix.concat("00").concat(Long.toString(sequenceId));
-                } else if (sequenceId < 1000) {
-                    return prefix.concat("0").concat(Long.toString(sequenceId));
-                } else {
-                    return prefix.concat(Long.toString(sequenceId));
-                }
-            } catch (CacheSystemException cse) {
-                throw new RuntimeException("Failed to generate serial key for " + sequenceKey);
-            }
+            IKeyGenerator sequence = KeyGeneratorManager.this.getKeyGenerator(SequenceKey.SERIAL_SEQUENCE);
+            //Serial no format: 六位年月日 + 两位数的类型码 + 至少六位顺序号
+            String serialNo = DateUtils.format(new Date(), DateUtils.YYMMDD);
+            return serialNo.concat(typeCode).concat(String.valueOf(sequence.nextId()));
         }
     }
     
     public enum SequenceKey
     {
-        TEST_SEQUENCE("TEST_SEQUENCE"),
+        SERIAL_SEQUENCE("SERIAL_SEQUENCE"),
 
         FUND_TRANSACTION("FUND_TRANSACTION"),
 

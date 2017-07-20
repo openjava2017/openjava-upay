@@ -81,8 +81,7 @@ public class FeeTransactionServiceImpl implements IFeeTransactionService
         IKeyGenerator keyGenerator = keyGeneratorManager.getKeyGenerator(SequenceKey.FUND_TRANSACTION);
         ISerialKeyGenerator serialKeyGenerator = keyGeneratorManager.getSerialKeyGenerator();
         if (transaction.getSerialNo() == null) {
-            transaction.setSerialNo(serialKeyGenerator.nextSerialNo(
-                String.valueOf(TransactionType.PAY_FEE.getCode()), TransactionType.class.getSimpleName()));
+            transaction.setSerialNo(serialKeyGenerator.nextSerialNo(String.valueOf(TransactionType.PAY_FEE.getCode())));
         }
 
         FundTransaction fundTransaction = new FundTransaction();

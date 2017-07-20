@@ -83,7 +83,7 @@ public class FundTransactionServiceImpl implements IFundTransactionService
         ISerialKeyGenerator serialKeyGenerator = keyGeneratorManager.getSerialKeyGenerator();
         String serialNo = transaction.getSerialNo();
         if (ObjectUtils.isEmpty(serialNo)) {
-            serialNo = serialKeyGenerator.nextSerialNo("40", FrozenTransaction.class.getSimpleName());
+            serialNo = serialKeyGenerator.nextSerialNo("40");
         }
 
         FundFrozen fundFrozen = new FundFrozen();
