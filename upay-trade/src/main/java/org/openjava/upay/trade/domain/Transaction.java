@@ -1,7 +1,6 @@
 package org.openjava.upay.trade.domain;
 
 import org.openjava.upay.core.type.Pipeline;
-import org.openjava.upay.trade.type.TransactionType;
 
 import java.util.List;
 

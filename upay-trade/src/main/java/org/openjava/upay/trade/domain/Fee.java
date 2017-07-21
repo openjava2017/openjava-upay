@@ -1,12 +1,12 @@
 package org.openjava.upay.trade.domain;
 
+import org.openjava.upay.core.type.FundType;
 import org.openjava.upay.core.type.Pipeline;
-import org.openjava.upay.trade.type.FeeType;
 
 public class Fee
 {
     private Pipeline pipeline;
-    private FeeType type;
+    private FundType type;
     private Long amount;
 
     public Pipeline getPipeline()
@@ -19,12 +19,12 @@ public class Fee
         this.pipeline = pipeline;
     }
 
-    public FeeType getType()
+    public FundType getType()
     {
         return type;
     }
 
-    public void setType(FeeType type)
+    public void setType(FundType type)
     {
         this.type = type;
     }

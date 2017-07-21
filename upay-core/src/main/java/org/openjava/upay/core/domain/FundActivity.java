@@ -1,6 +1,7 @@
 package org.openjava.upay.core.domain;
 
 import org.openjava.upay.core.type.Action;
+import org.openjava.upay.core.type.FundType;
 import org.openjava.upay.core.type.Pipeline;
 import org.openjava.upay.core.type.StatementType;
 
@@ -9,7 +10,7 @@ public class FundActivity
     private Long transactionId;
     private Pipeline pipeline;
     private Action action;
-    private StatementType type;
+    private FundType type;
     private Long amount;
     private String description;
 
@@ -43,12 +44,12 @@ public class FundActivity
         this.action = action;
     }
 
-    public StatementType getType()
+    public FundType getType()
     {
         return type;
     }
 
-    public void setType(StatementType type)
+    public void setType(FundType type)
     {
         this.type = type;
     }

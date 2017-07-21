@@ -6,10 +6,7 @@ import org.openjava.upay.core.exception.FundTransactionException;
 import org.openjava.upay.core.model.FundAccount;
 import org.openjava.upay.core.model.Merchant;
 import org.openjava.upay.core.service.IFundStreamEngine;
-import org.openjava.upay.core.type.AccountStatus;
-import org.openjava.upay.core.type.Action;
-import org.openjava.upay.core.type.Pipeline;
-import org.openjava.upay.core.type.StatementType;
+import org.openjava.upay.core.type.*;
 import org.openjava.upay.shared.sequence.IKeyGenerator;
 import org.openjava.upay.shared.sequence.ISerialKeyGenerator;
 import org.openjava.upay.shared.sequence.KeyGeneratorManager;
@@ -119,7 +116,7 @@ public class WithdrawTransactionServiceImpl implements IWithdrawTransactionServi
         activity.setTransactionId(fundTransaction.getId());
         activity.setPipeline(fundTransaction.getPipeline());
         activity.setAction(Action.OUTGO);
-        activity.setType(StatementType.FUND);
+        activity.setType(FundType.FUND);
         activity.setAmount(fundTransaction.getAmount());
         activity.setDescription(fundTransaction.getType().getName());
         activities.add(activity);
@@ -146,10 +143,12 @@ public class WithdrawTransactionServiceImpl implements IWithdrawTransactionServi
 
         if (ObjectUtils.isNotEmpty(transaction.getFees())) {
             for (Fee fee : transaction.getFees()) {
-                AssertUtils.notNull(fee.getAmount(), "Argument missed: fee amount");
-                AssertUtils.isTrue(fee.getAmount() > 0, "Invalid fee amount");
                 AssertUtils.isTrue(fee.getPipeline() == Pipeline.ACCOUNT ||
                     fee.getPipeline() == Pipeline.CASH, "Invalid fee pipeline");
+                AssertUtils.notNull(fee.getType(), "Arguments missed: fee type");
+                AssertUtils.isTrue(fee.getType().isFeeType(), "Invalid fee type");
+                AssertUtils.notNull(fee.getAmount(), "Arguments missed: fee amount");
+                AssertUtils.isTrue(fee.getAmount() > 0, "Invalid fee amount");
             }
         }
     }

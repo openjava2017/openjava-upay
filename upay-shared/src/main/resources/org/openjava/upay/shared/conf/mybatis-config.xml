@@ -20,7 +20,7 @@
         <typeHandler handler="org.openjava.upay.shared.mybatis.GenericEnumTypeHandler" javaType="org.openjava.upay.core.type.StatementType"/>
         <typeHandler handler="org.openjava.upay.shared.mybatis.GenericEnumTypeHandler" javaType="org.openjava.upay.core.type.AccountType"/>
         <typeHandler handler="org.openjava.upay.shared.mybatis.GenericEnumTypeHandler" javaType="org.openjava.upay.core.type.AccountStatus"/>
-        <typeHandler handler="org.openjava.upay.shared.mybatis.GenericEnumTypeHandler" javaType="org.openjava.upay.trade.type.FeeType"/>
+        <typeHandler handler="org.openjava.upay.shared.mybatis.GenericEnumTypeHandler" javaType="org.openjava.upay.core.type.FundType"/>
         <typeHandler handler="org.openjava.upay.shared.mybatis.GenericEnumTypeHandler" javaType="org.openjava.upay.trade.type.TransactionType"/>
         <typeHandler handler="org.openjava.upay.shared.mybatis.GenericEnumTypeHandler" javaType="org.openjava.upay.trade.type.TransactionStatus"/>
         <typeHandler handler="org.openjava.upay.shared.mybatis.GenericEnumTypeHandler" javaType="org.openjava.upay.trade.type.FrozenType"/>

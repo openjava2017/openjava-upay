@@ -1,7 +1,7 @@
 package org.openjava.upay.trade.model;
 
+import org.openjava.upay.core.type.FundType;
 import org.openjava.upay.core.type.Pipeline;
-import org.openjava.upay.trade.type.FeeType;
 
 import java.util.Date;
 
@@ -10,7 +10,7 @@ public class TransactionFee
     private Long id;
     private Long transactionId;
     private Pipeline pipeline;
-    private FeeType type;
+    private FundType type;
     private Long amount;
     private Date createdTime;
 
@@ -44,12 +44,12 @@ public class TransactionFee
         this.pipeline = pipeline;
     }
 
-    public FeeType getType()
+    public FundType getType()
     {
         return type;
     }
 
-    public void setType(FeeType type)
+    public void setType(FundType type)
     {
         this.type = type;
     }

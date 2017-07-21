@@ -8,8 +8,8 @@ import org.openjava.upay.core.model.Merchant;
 import org.openjava.upay.core.service.IFundStreamEngine;
 import org.openjava.upay.core.type.AccountStatus;
 import org.openjava.upay.core.type.Action;
+import org.openjava.upay.core.type.FundType;
 import org.openjava.upay.core.type.Pipeline;
-import org.openjava.upay.core.type.StatementType;
 import org.openjava.upay.shared.sequence.IKeyGenerator;
 import org.openjava.upay.shared.sequence.ISerialKeyGenerator;
 import org.openjava.upay.shared.sequence.KeyGeneratorManager;
@@ -125,7 +125,7 @@ public class TradeTransactionServiceImpl implements ITradeTransactionService
         fromActivity.setTransactionId(fundTransaction.getId());
         fromActivity.setPipeline(fundTransaction.getPipeline());
         fromActivity.setAction(Action.OUTGO);
-        fromActivity.setType(StatementType.FUND);
+        fromActivity.setType(FundType.FUND);
         fromActivity.setAmount(fundTransaction.getAmount());
         fromActivity.setDescription(fundTransaction.getType().getName() + Action.OUTGO.getName());
         fundStreamEngine.submit(fundTransaction.getFromId(), fromActivity);
@@ -136,7 +136,7 @@ public class TradeTransactionServiceImpl implements ITradeTransactionService
         toActivity.setTransactionId(fundTransaction.getId());
         toActivity.setPipeline(fundTransaction.getPipeline());
         toActivity.setAction(Action.INCOME);
-        toActivity.setType(StatementType.FUND);
+        toActivity.setType(FundType.FUND);
         toActivity.setAmount(fundTransaction.getAmount());
         toActivity.setDescription(fundTransaction.getType().getName() + Action.INCOME.getName());
         activities.add(toActivity);
@@ -166,6 +166,8 @@ public class TradeTransactionServiceImpl implements ITradeTransactionService
         if (ObjectUtils.isNotEmpty(transaction.getFees())) {
             for (Fee fee : transaction.getFees()) {
                 AssertUtils.isTrue(fee.getPipeline() == Pipeline.ACCOUNT, "Invalid fee pipeline");
+                AssertUtils.notNull(fee.getType(), "Argument missed: fee type");
+                AssertUtils.isTrue(fee.getType().isFeeType(), "Invalid fee type");
                 AssertUtils.notNull(fee.getAmount(), "Argument missed: fee amount");
                 AssertUtils.isTrue(fee.getAmount() > 0, "Invalid fee amount");
             }

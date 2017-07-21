@@ -13,13 +13,13 @@ public class JsonUtils
     {
         registerSerializeConfig("org.openjava.upay.core.type.Pipeline");
         registerSerializeConfig("org.openjava.upay.core.type.AccountType");
+        registerSerializeConfig("org.openjava.upay.core.type.FundType");
         registerSerializeConfig("org.openjava.upay.shared.type.Gender");
-        registerSerializeConfig("org.openjava.upay.trade.type.FeeType");
 
         registerParserConfig("org.openjava.upay.core.type.Pipeline");
         registerParserConfig("org.openjava.upay.core.type.AccountType");
+        registerParserConfig("org.openjava.upay.core.type.FundType");
         registerParserConfig("org.openjava.upay.shared.type.Gender");
-        registerParserConfig("org.openjava.upay.trade.type.FeeType");
     }
 
     public static String toJsonString(Object obj)

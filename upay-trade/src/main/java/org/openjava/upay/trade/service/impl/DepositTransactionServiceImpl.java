@@ -8,8 +8,8 @@ import org.openjava.upay.core.model.Merchant;
 import org.openjava.upay.core.service.IFundStreamEngine;
 import org.openjava.upay.core.type.AccountStatus;
 import org.openjava.upay.core.type.Action;
+import org.openjava.upay.core.type.FundType;
 import org.openjava.upay.core.type.Pipeline;
-import org.openjava.upay.core.type.StatementType;
 import org.openjava.upay.shared.sequence.IKeyGenerator;
 import org.openjava.upay.shared.sequence.ISerialKeyGenerator;
 import org.openjava.upay.shared.sequence.KeyGeneratorManager;
@@ -110,7 +110,7 @@ public class DepositTransactionServiceImpl implements IDepositTransactionService
         activity.setTransactionId(fundTransaction.getId());
         activity.setPipeline(fundTransaction.getPipeline());
         activity.setAction(Action.INCOME);
-        activity.setType(StatementType.FUND);
+        activity.setType(FundType.FUND);
         activity.setAmount(fundTransaction.getAmount());
         activity.setDescription(fundTransaction.getType().getName());
         activities.add(activity);
@@ -129,16 +129,18 @@ public class DepositTransactionServiceImpl implements IDepositTransactionService
     {
         AssertUtils.notNull(transaction.getAccountId(), "Argument missed: accountId");
         AssertUtils.notNull(transaction.getPipeline(), "Argument missed: pipeline");
-        AssertUtils.notNull(transaction.getAmount(), "Argument missed: amount");
-        AssertUtils.isTrue(transaction.getAmount() > 0, "Invalid transaction amount");
         // 充值只支持现金和POS
         AssertUtils.isTrue(transaction.getPipeline() == Pipeline.CASH ||
-            transaction.getPipeline() == Pipeline.POS, "Invalid transaction pipeline");
+                transaction.getPipeline() == Pipeline.POS, "Invalid transaction pipeline");
+        AssertUtils.notNull(transaction.getAmount(), "Argument missed: amount");
+        AssertUtils.isTrue(transaction.getAmount() > 0, "Invalid transaction amount");
 
         if (ObjectUtils.isNotEmpty(transaction.getFees())) {
             for (Fee fee : transaction.getFees()) {
                 AssertUtils.isTrue(fee.getPipeline() == Pipeline.ACCOUNT ||
                     fee.getPipeline() == Pipeline.CASH, "Invalid fee pipeline");
+                AssertUtils.notNull(fee.getType(), "Argument missed: fee type");
+                AssertUtils.isTrue(fee.getType().isFeeType(), "Invalid fee type");
                 AssertUtils.notNull(fee.getAmount(), "Argument missed: fee amount");
                 AssertUtils.isTrue(fee.getAmount() > 0,"Invalid fee amount");
             }
