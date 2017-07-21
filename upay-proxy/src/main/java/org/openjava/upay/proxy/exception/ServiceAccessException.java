@@ -4,7 +4,7 @@ import org.openjava.upay.shared.type.ErrorCode;
 
 public class ServiceAccessException extends RuntimeException
 {
-    private int code = 0;
+    private int code = ErrorCode.UNKNOWN_EXCEPTION.getCode();
 
     private boolean stackTrace = true;
 

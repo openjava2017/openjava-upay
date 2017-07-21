@@ -36,7 +36,7 @@
 
     <select id="findFundAccountById" parameterType="long" resultMap="FundAccountMap">
         <![CDATA[
-            SELECT * FROM upay_fund_account WHERE id = #{targetId}
+            SELECT * FROM upay_fund_account WHERE id = #{accountId}
         ]]>
     </select>
 
