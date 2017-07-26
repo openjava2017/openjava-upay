@@ -101,11 +101,12 @@ CREATE TABLE `upay_fund_transaction` (
   `id` BIGINT NOT NULL COMMENT '主键ID',
   `merchant_id` BIGINT NOT NULL COMMENT '商户ID',
   `serial_no` VARCHAR(40) NOT NULL COMMENT '交易流水号',
+  `target_no` VARCHAR(40) COMMENT '目标流水号-退款 冲正',
   `type` TINYINT UNSIGNED NOT NULL COMMENT '业务类型-充值 提现 交易 退款等',
   `from_id` BIGINT COMMENT '账号ID',
   `from_name` VARCHAR(20) COMMENT '用户名-冗余',
-  `target_id` BIGINT NOT NULL COMMENT '账号ID',
-  `target_name` VARCHAR(20) COMMENT '用户名-冗余',
+  `target_id` BIGINT NOT NULL COMMENT '目标账号ID',
+  `target_name` VARCHAR(20) COMMENT '目标用户名-冗余',
   `pipeline` TINYINT UNSIGNED NOT NULL COMMENT '渠道类型-现金 账户余额 工商银行等',
   `amount` BIGINT NOT NULL COMMENT '金额-分(正值)',
   `status` TINYINT UNSIGNED NOT NULL COMMENT '状态-申请 完成 失败等',
@@ -115,6 +116,7 @@ CREATE TABLE `upay_fund_transaction` (
   PRIMARY KEY (`id`),
   KEY `idx_fund_transaction_fromId` (`from_id`) USING BTREE,
   KEY `idx_fund_transaction_targetId` (`target_id`) USING BTREE,
+  KEY `idx_fund_transaction_targetNo` (`target_no`) USING BTREE,
   UNIQUE KEY `idx_fund_transaction_serialNo` (`serial_no`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 

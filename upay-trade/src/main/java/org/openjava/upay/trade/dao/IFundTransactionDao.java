@@ -5,6 +5,7 @@ import org.openjava.upay.shared.mybatis.MybatisMapperSupport;
 import org.openjava.upay.trade.model.FundTransaction;
 import org.openjava.upay.trade.model.TransactionFee;
 import org.openjava.upay.trade.type.TransactionStatus;
+import org.openjava.upay.trade.type.TransactionType;
 import org.springframework.stereotype.Repository;
 
 import java.util.Date;
@@ -20,6 +21,8 @@ public interface IFundTransactionDao extends MybatisMapperSupport
     FundTransaction findFundTransactionByNo(String serialNo);
 
     FundTransaction findFundTransactionById(Long transactionId);
+
+    Long findRefundTransactionAmount(@Param("targetNo") String targetNo, @Param("type") TransactionType type);
 
     List<TransactionFee> findFeesByTransactionId(Long transactionId);
 

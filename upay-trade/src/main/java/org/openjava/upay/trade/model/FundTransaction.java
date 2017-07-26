@@ -11,6 +11,7 @@ public class FundTransaction
     private Long id;
     private Long merchantId;
     private String serialNo;
+    private String targetNo;
     private TransactionType type;
     private Long fromId;
     private String fromName;
@@ -51,6 +52,16 @@ public class FundTransaction
     public void setSerialNo(String serialNo)
     {
         this.serialNo = serialNo;
+    }
+
+    public String getTargetNo()
+    {
+        return targetNo;
+    }
+
+    public void setTargetNo(String targetNo)
+    {
+        this.targetNo = targetNo;
     }
 
     public TransactionType getType()

@@ -7,6 +7,7 @@
         <id column="id" property="id"/>
         <result column="merchant_id" property="merchantId"/>
         <result column="serial_no" property="serialNo"/>
+        <result column="target_no" property="targetNo"/>
         <result column="type" property="type"/>
         <result column="from_id" property="fromId"/>
         <result column="from_name" property="fromName"/>
@@ -31,10 +32,10 @@
 
     <update id="createFundTransaction" parameterType="org.openjava.upay.trade.model.FundTransaction">
         INSERT INTO upay_fund_transaction
-            (id, merchant_id, serial_no, type, from_id, from_name, target_id,
+            (id, merchant_id, serial_no, target_no, type, from_id, from_name, target_id,
             target_name, pipeline, amount, status, description, created_time, modified_time)
         VALUES
-            (#{id}, #{merchantId}, #{serialNo}, #{type}, #{fromId}, #{fromName}, #{targetId},
+            (#{id}, #{merchantId}, #{serialNo}, #{targetNo}, #{type}, #{fromId}, #{fromName}, #{targetId},
              #{targetName}, #{pipeline}, #{amount}, #{status}, #{description}, #{createdTime}, #{modifiedTime})
     </update>
 
@@ -50,7 +51,11 @@
     </select>
 
     <select id="findFundTransactionByNo" parameterType="string" resultMap="FundTransactionMap">
-        SELECT * FROM upay_fund_transaction WHERE id = #{serialNo}
+        SELECT * FROM upay_fund_transaction WHERE serial_no = #{serialNo}
+    </select>
+
+    <select id="findRefundTransactionAmount" resultType="long">
+        SELECT SUM(amount) FROM upay_fund_transaction WHERE target_no = #{targetNo} and type = #{type}
     </select>
 
     <select id="findFeesByTransactionId" parameterType="long" resultMap="TransactionFeeMap">

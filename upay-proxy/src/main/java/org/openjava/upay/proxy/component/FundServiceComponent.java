@@ -29,6 +29,9 @@ public class FundServiceComponent
     private ITradeTransactionService tradeTransactionService;
 
     @Resource
+    private IRefundTransactionService refundTransactionService;
+
+    @Resource
     private IFundTransactionService fundTransactionService;
 
     public ServiceResponse<TransactionId> deposit(ServiceRequest<Transaction> request) throws Exception
@@ -88,6 +91,21 @@ public class FundServiceComponent
             throw new ServiceAccessException(fex.getMessage(), fex.getCode());
         } catch (Exception ex) {
             throw new ServiceAccessException("Trade transaction failed", ex);
+        }
+    }
+
+    public ServiceResponse<TransactionId> refund(ServiceRequest<RefundTransaction> request) throws Exception
+    {
+        try {
+            TransactionId result = refundTransactionService.refund(
+                    request.getContext().getMerchant(), request.getData());
+            return ServiceResponse.success(result);
+        } catch (IllegalArgumentException aex) {
+            throw new ServiceAccessException(aex.getMessage(), ErrorCode.ILLEGAL_ARGUMENT.getCode());
+        } catch (FundTransactionException fex) {
+            throw new ServiceAccessException(fex.getMessage(), fex.getCode());
+        } catch (Exception ex) {
+            throw new ServiceAccessException("refund transaction failed", ex);
         }
     }
 
