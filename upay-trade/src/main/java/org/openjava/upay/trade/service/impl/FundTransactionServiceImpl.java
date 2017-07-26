@@ -10,12 +10,12 @@ import org.openjava.upay.shared.sequence.IKeyGenerator;
 import org.openjava.upay.shared.sequence.ISerialKeyGenerator;
 import org.openjava.upay.shared.sequence.KeyGeneratorManager;
 import org.openjava.upay.shared.type.ErrorCode;
-import org.openjava.upay.trade.dao.IFundFrozenDao;
-import org.openjava.upay.trade.domain.FrozenTransaction;
+import org.openjava.upay.trade.dao.IFrozenTransactionDao;
+import org.openjava.upay.trade.domain.FrozenFundTransaction;
 import org.openjava.upay.trade.domain.TransactionId;
-import org.openjava.upay.trade.domain.UnfrozenRequest;
-import org.openjava.upay.trade.domain.UnfrozenTransaction;
-import org.openjava.upay.trade.model.FundFrozen;
+import org.openjava.upay.trade.domain.UnfrozenFundRequest;
+import org.openjava.upay.trade.domain.UnfrozenFundTransaction;
+import org.openjava.upay.trade.model.FrozenTransaction;
 import org.openjava.upay.trade.service.IFundTransactionService;
 import org.openjava.upay.trade.type.FrozenStatus;
 import org.openjava.upay.trade.type.FrozenType;
@@ -37,14 +37,14 @@ public class FundTransactionServiceImpl implements IFundTransactionService
     private IFundAccountDao fundAccountDao;
 
     @Resource
-    private IFundFrozenDao fundFrozenDao;
+    private IFrozenTransactionDao frozenTransactionDao;
 
     @Resource
     private IFundStreamEngine fundStreamEngine;
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public TransactionId freezeAccountFund(Merchant merchant, FrozenTransaction transaction)
+    public TransactionId freezeAccountFund(Merchant merchant, FrozenFundTransaction transaction)
     {
         AssertUtils.notNull(transaction.getAccountId(), "Argument missed: accountId");
         AssertUtils.isTrue(transaction.getAmount() != null && transaction.getAmount() > 0,
@@ -64,42 +64,42 @@ public class FundTransactionServiceImpl implements IFundTransactionService
             throw new FundTransactionException(ErrorCode.FUND_TRANSACTION_FAILED);
         }
 
-        IKeyGenerator keyGenerator = keyGeneratorManager.getKeyGenerator(KeyGeneratorManager.SequenceKey.FUND_FROZEN);
+        IKeyGenerator keyGenerator = keyGeneratorManager.getKeyGenerator(KeyGeneratorManager.SequenceKey.FROZEN_TRANSACTION);
         ISerialKeyGenerator serialKeyGenerator = keyGeneratorManager.getSerialKeyGenerator();
         String serialNo = transaction.getSerialNo();
         if (ObjectUtils.isEmpty(serialNo)) {
             serialNo = serialKeyGenerator.nextSerialNo("40");
         }
 
-        FundFrozen fundFrozen = new FundFrozen();
-        fundFrozen.setId(keyGenerator.nextId());
-        fundFrozen.setSerialNo(serialNo);
-        fundFrozen.setTargetId(account.getId());
-        fundFrozen.setTargetName(account.getName());
-        fundFrozen.setType(FrozenType.SYSTEM_FROZEN);
-        fundFrozen.setAmount(transaction.getAmount());
-        fundFrozen.setStatus(FrozenStatus.FROZEN);
-        fundFrozen.setFrozenTime(when);
-        fundFrozen.setMerchantId(merchant.getId());
-        fundFrozen.setFrozenUid(transaction.getUserId());
-        fundFrozen.setFrozenUname(transaction.getUserName());
-        fundFrozen.setDescription(transaction.getDescription());
-        fundFrozenDao.freezeAccountFund(fundFrozen);
+        FrozenTransaction frozenTransaction = new FrozenTransaction();
+        frozenTransaction.setId(keyGenerator.nextId());
+        frozenTransaction.setSerialNo(serialNo);
+        frozenTransaction.setTargetId(account.getId());
+        frozenTransaction.setTargetName(account.getName());
+        frozenTransaction.setType(FrozenType.SYSTEM_FROZEN);
+        frozenTransaction.setAmount(transaction.getAmount());
+        frozenTransaction.setStatus(FrozenStatus.FROZEN);
+        frozenTransaction.setFrozenTime(when);
+        frozenTransaction.setMerchantId(merchant.getId());
+        frozenTransaction.setFrozenUid(transaction.getUserId());
+        frozenTransaction.setFrozenUname(transaction.getUserName());
+        frozenTransaction.setDescription(transaction.getDescription());
+        frozenTransactionDao.freezeAccountFund(frozenTransaction);
 
         TransactionId transactionId = new TransactionId();
-        transactionId.setId(fundFrozen.getId());
+        transactionId.setId(frozenTransaction.getId());
         transactionId.setSerialNo(serialNo);
         return transactionId;
     }
 
     @Override
     @Transactional(rollbackFor = Exception.class)
-    public void unfreezeAccountFund(Merchant merchant, UnfrozenTransaction transaction)
+    public void unfreezeAccountFund(Merchant merchant, UnfrozenFundTransaction transaction)
     {
         AssertUtils.notEmpty(transaction.getSerialNo(), "Argument missed: serialNo");
 
         Date when = new Date();
-        FundFrozen fundFrozen = fundFrozenDao.findFundFrozenByNo(transaction.getSerialNo());
+        FrozenTransaction fundFrozen = frozenTransactionDao.findFundFrozenByNo(transaction.getSerialNo());
         if (fundFrozen == null) {
             throw new FundTransactionException(ErrorCode.TRANSACTION_NOT_FOUND);
         }
@@ -107,13 +107,13 @@ public class FundTransactionServiceImpl implements IFundTransactionService
             return;
         }
         fundStreamEngine.unfreeze(fundFrozen.getTargetId(), fundFrozen.getAmount());
-        UnfrozenRequest request = new UnfrozenRequest();
+        UnfrozenFundRequest request = new UnfrozenFundRequest();
         request.setId(fundFrozen.getId());
         request.setNewStatus(FrozenStatus.UNFROZEN);
         request.setOldStatus(FrozenStatus.FROZEN);
         request.setUnfrozenTime(when);
         request.setUnfrozenUid(transaction.getUserId());
         request.setUnfrozenUname(transaction.getUserName());
-        fundFrozenDao.unfreezeAccountFund(request);
+        frozenTransactionDao.unfreezeAccountFund(request);
     }
 }

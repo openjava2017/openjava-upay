@@ -4,7 +4,7 @@ import org.openjava.upay.trade.type.FrozenStatus;
 
 import java.util.Date;
 
-public class UnfrozenRequest
+public class UnfrozenFundRequest
 {
     private Long id;
     private FrozenStatus newStatus;

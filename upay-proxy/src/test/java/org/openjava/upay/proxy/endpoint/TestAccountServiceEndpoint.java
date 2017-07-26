@@ -173,7 +173,7 @@ public class TestAccountServiceEndpoint extends ServiceEndpointSupport
         envelop.put("charset", "UTF-8");
 
         Map<String, Object> transaction = new HashMap<>();
-        transaction.put("serialNo", "20170711400004");
+        transaction.put("serialNo", "17072640100071");
         transaction.put("userId", 1021L);
         transaction.put("userName", "曾华1");
 

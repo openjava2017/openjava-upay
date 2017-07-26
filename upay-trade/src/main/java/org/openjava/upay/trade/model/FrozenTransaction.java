@@ -5,7 +5,7 @@ import org.openjava.upay.trade.type.FrozenType;
 
 import java.util.Date;
 
-public class FundFrozen
+public class FrozenTransaction
 {
     private Long id;
     private String serialNo;

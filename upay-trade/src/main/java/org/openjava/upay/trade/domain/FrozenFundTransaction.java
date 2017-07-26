@@ -1,6 +1,6 @@
 package org.openjava.upay.trade.domain;
 
-public class FrozenTransaction
+public class FrozenFundTransaction
 {
     private String serialNo;
     private Long accountId;

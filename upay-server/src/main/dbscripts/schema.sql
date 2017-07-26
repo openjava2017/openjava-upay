@@ -139,8 +139,8 @@ CREATE TABLE `upay_transaction_fee` (
 -- ----------------------------
 -- 资金冻结记录
 -- ----------------------------
-DROP TABLE IF EXISTS `upay_fund_frozen`;
-CREATE TABLE `upay_fund_frozen` (
+DROP TABLE IF EXISTS `upay_frozen_transaction`;
+CREATE TABLE `upay_frozen_transaction` (
   `id` BIGINT NOT NULL COMMENT '主键ID',
   `serial_no` VARCHAR(40) NOT NULL COMMENT '操作流水号',
   `target_id` BIGINT NOT NULL COMMENT '账号ID',
@@ -157,8 +157,8 @@ CREATE TABLE `upay_fund_frozen` (
   `unfrozen_uname` VARCHAR(20) NULL COMMENT '解冻人名称',
   `description` VARCHAR(128) COMMENT '备注',
   PRIMARY KEY (`id`),
-  UNIQUE KEY `idx_fund_frozen_serialNo` (`serial_no`) USING BTREE,
-  KEY `idx_fund_frozen_targetId` (`target_id`) USING BTREE
+  UNIQUE KEY `idx_frozen_transaction_serialNo` (`serial_no`) USING BTREE,
+  KEY `idx_frozen_transaction_targetId` (`target_id`) USING BTREE
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8;
 
 -- ----------------------------

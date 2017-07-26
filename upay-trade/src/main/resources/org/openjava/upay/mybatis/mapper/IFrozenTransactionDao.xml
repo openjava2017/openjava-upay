@@ -2,8 +2,8 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="org.openjava.upay.trade.dao.IFundFrozenDao">
-    <resultMap id="FundFrozenMap" type="org.openjava.upay.trade.model.FundFrozen">
+<mapper namespace="org.openjava.upay.trade.dao.IFrozenTransactionDao">
+    <resultMap id="FundFrozenMap" type="org.openjava.upay.trade.model.FrozenTransaction">
         <id column="id" property="id"/>
         <result column="serial_no" property="serialNo"/>
         <result column="target_id" property="targetId"/>
@@ -21,26 +21,26 @@
         <result column="description" property="description"/>
     </resultMap>
 
-    <update id="freezeAccountFund" parameterType="org.openjava.upay.trade.model.FundFrozen">
-        INSERT INTO upay_fund_frozen(id, serial_no, target_id, target_name, type, amount, status, frozen_time,
+    <update id="freezeAccountFund" parameterType="org.openjava.upay.trade.model.FrozenTransaction">
+        INSERT INTO upay_frozen_transaction(id, serial_no, target_id, target_name, type, amount, status, frozen_time,
           unfrozen_time, merchant_id, frozen_uid, frozen_uname, unfrozen_uid, unfrozen_uname, description)
         VALUES
           (#{id}, #{serialNo}, #{targetId}, #{targetName}, #{type}, #{amount}, #{status}, #{frozenTime}, #{unfrozenTime},
            #{merchantId}, #{frozenUid}, #{frozenUname}, #{unfrozenUid}, #{unfrozenUname}, #{description})
     </update>
 
-    <update id="unfreezeAccountFund" parameterType="org.openjava.upay.trade.domain.UnfrozenRequest">
-        UPDATE upay_fund_frozen SET status = #{newStatus}, unfrozen_time = #{unfrozenTime},
+    <update id="unfreezeAccountFund" parameterType="org.openjava.upay.trade.domain.UnfrozenFundRequest">
+        UPDATE upay_frozen_transaction SET status = #{newStatus}, unfrozen_time = #{unfrozenTime},
           unfrozen_uid = #{unfrozenUid}, unfrozen_uname = #{unfrozenUname}
         WHERE id = #{id} AND status = #{oldStatus}
     </update>
 
     <select id="findFundFrozenByNo" parameterType="string" resultMap="FundFrozenMap">
-        SELECT * FROM upay_fund_frozen WHERE serial_no = #{serialNo}
+        SELECT * FROM upay_frozen_transaction WHERE serial_no = #{serialNo}
     </select>
 
     <select id="findFundFrozenById" parameterType="long" resultMap="FundFrozenMap">
-        SELECT * FROM upay_fund_frozen WHERE id = #{id}
+        SELECT * FROM upay_frozen_transaction WHERE id = #{id}
     </select>
 
 </mapper>

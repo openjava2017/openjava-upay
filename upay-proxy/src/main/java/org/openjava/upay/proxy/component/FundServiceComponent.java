@@ -109,7 +109,7 @@ public class FundServiceComponent
         }
     }
 
-    public ServiceResponse<TransactionId> freeze(ServiceRequest<FrozenTransaction> request)
+    public ServiceResponse<TransactionId> freeze(ServiceRequest<FrozenFundTransaction> request)
     {
         try {
             TransactionId result = fundTransactionService.freezeAccountFund(
@@ -124,7 +124,7 @@ public class FundServiceComponent
         }
     }
 
-    public void unfreeze(ServiceRequest<UnfrozenTransaction> request)
+    public void unfreeze(ServiceRequest<UnfrozenFundTransaction> request)
     {
         try {
             fundTransactionService.unfreezeAccountFund(request.getContext().getMerchant(), request.getData());
