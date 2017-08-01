@@ -81,12 +81,17 @@ public class RefundTransactionServiceImpl implements IRefundTransactionService
         }
         //验证原交易单收款方资金账号与参数中是否一致
         AssertUtils.isTrue(fundTransaction.getTargetId() == transaction.getAccountId(),
-                "Invalid account Id");
-        //历史退款金额+当前退款金额不能大于原交易金额
-        Long refundAmount = fundTransactionDao.findRefundTransactionAmount(transaction.getSerialNo(), TransactionType.REFUND);
-        refundAmount = refundAmount == null ? 0L : refundAmount;
-        if (refundAmount + transaction.getAmount() > fundTransaction.getAmount()) {
+            "Invalid account Id");
+        //退款金额不能大于交易金额
+        if (transaction.getAmount() > fundTransaction.getAmount()) {
             throw new FundTransactionException(ErrorCode.REFUND_FUNDS_EXCEED);
+        }
+        //更新资金事务表的交易金额, 初始金额max_amount不做修改
+        Long newAmount = fundTransaction.getAmount() - transaction.getAmount();
+        int result = fundTransactionDao.compareAndSetAmount(fundTransaction.getId(), newAmount,
+                fundTransaction.getAmount(), when);
+        if (result <= 0) {
+            throw new FundTransactionException(ErrorCode.FUND_TRANSACTION_FAILED);
         }
 
         IKeyGenerator keyGenerator = keyGeneratorManager.getKeyGenerator(KeyGeneratorManager.SequenceKey.FUND_TRANSACTION);

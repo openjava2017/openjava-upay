@@ -54,10 +54,6 @@
         SELECT * FROM upay_fund_transaction WHERE serial_no = #{serialNo}
     </select>
 
-    <select id="findRefundTransactionAmount" resultType="long">
-        SELECT SUM(amount) FROM upay_fund_transaction WHERE target_no = #{targetNo} and type = #{type}
-    </select>
-
     <select id="findFeesByTransactionId" parameterType="long" resultMap="TransactionFeeMap">
         SELECT * FROM upay_transaction_fee WHERE transaction_id = #{transactionId}
     </select>
@@ -65,5 +61,10 @@
     <update id="compareAndSetStatus">
         UPDATE upay_fund_transaction SET status = #{newStatus}, modified_time = #{modifiedTime}
         WHERE id = #{id} AND status = #{oldStatus}
+    </update>
+
+    <update id="compareAndSetAmount">
+        UPDATE upay_fund_transaction SET amount = #{newAmount}, modified_time = #{modifiedTime}
+        WHERE id = #{id} AND amount = #{oldAmount}
     </update>
 </mapper>

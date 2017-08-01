@@ -22,11 +22,11 @@ public interface IFundTransactionDao extends MybatisMapperSupport
 
     FundTransaction findFundTransactionById(Long transactionId);
 
-    Long findRefundTransactionAmount(@Param("targetNo") String targetNo, @Param("type") TransactionType type);
-
     List<TransactionFee> findFeesByTransactionId(Long transactionId);
 
     int compareAndSetStatus(@Param("id") Long id, @Param("newStatus")TransactionStatus newStatus,
-        @Param("oldStatus") TransactionStatus oldStatus, @Param("modifiedTime") Date modifiedTime);
+                            @Param("oldStatus") TransactionStatus oldStatus, @Param("modifiedTime") Date modifiedTime);
 
+    int compareAndSetAmount(@Param("id") Long id, @Param("newAmount")Long newAmount,
+                            @Param("oldAmount") Long oldAmount, @Param("modifiedTime") Date modifiedTime);
 }
