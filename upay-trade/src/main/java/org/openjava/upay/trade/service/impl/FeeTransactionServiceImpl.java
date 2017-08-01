@@ -92,6 +92,7 @@ public class FeeTransactionServiceImpl implements IFeeTransactionService
         fundTransaction.setTargetId(account.getId());
         fundTransaction.setTargetName(account.getName());
         fundTransaction.setPipeline(transaction.getPipeline());
+        fundTransaction.setMaxAmount(transaction.getAmount());
         fundTransaction.setAmount(transaction.getAmount());
         fundTransaction.setStatus(TransactionStatus.STATUS_COMPLETED);
         fundTransaction.setDescription(transaction.getDescription());

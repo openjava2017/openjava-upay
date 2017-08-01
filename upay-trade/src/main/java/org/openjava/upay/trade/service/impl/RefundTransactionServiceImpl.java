@@ -73,6 +73,9 @@ public class RefundTransactionServiceImpl implements IRefundTransactionService
         if (fundTransaction == null) {
             throw new FundTransactionException(ErrorCode.TRANSACTION_NOT_FOUND);
         }
+        if (fundTransaction.getType() != TransactionType.TRADE) {
+            throw new FundTransactionException(ErrorCode.INVALID_TRANSACTION_TYPE);
+        }
         if (fundTransaction.getStatus() != TransactionStatus.STATUS_COMPLETED) {
             throw new FundTransactionException(ErrorCode.INVALID_TRANSACTION_STATUS);
         }
@@ -99,6 +102,7 @@ public class RefundTransactionServiceImpl implements IRefundTransactionService
         refundTransaction.setTargetId(fundTransaction.getFromId());
         refundTransaction.setTargetName(fundTransaction.getFromName());
         refundTransaction.setPipeline(fundTransaction.getPipeline());
+        refundTransaction.setMaxAmount(transaction.getAmount());
         refundTransaction.setAmount(transaction.getAmount());
         refundTransaction.setStatus(TransactionStatus.STATUS_COMPLETED);
         refundTransaction.setDescription(transaction.getDescription());

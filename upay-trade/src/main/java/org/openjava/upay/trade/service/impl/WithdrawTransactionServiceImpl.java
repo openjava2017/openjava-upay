@@ -89,6 +89,7 @@ public class WithdrawTransactionServiceImpl implements IWithdrawTransactionServi
         fundTransaction.setTargetId(transaction.getAccountId());
         fundTransaction.setTargetName(account.getName());
         fundTransaction.setPipeline(transaction.getPipeline());
+        fundTransaction.setMaxAmount(transaction.getAmount());
         fundTransaction.setAmount(transaction.getAmount());
         fundTransaction.setStatus(TransactionStatus.STATUS_COMPLETED);
         fundTransaction.setDescription(transaction.getDescription());

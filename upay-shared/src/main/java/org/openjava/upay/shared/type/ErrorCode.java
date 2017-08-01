@@ -30,7 +30,11 @@ public enum ErrorCode implements IEnumType
 
     INVALID_TRANSACTION_STATUS(1022, "无效的事务状态"),
 
-    REFUND_FUNDS_EXCEED(1023, "退款金额超限"),
+    INVALID_TRANSACTION_TYPE(1023, "无效的事务类型"),
+
+    REFUND_FUNDS_EXCEED(1024, "退款金额超限"),
+
+    FLUSH_FUNDS_EXCEED(1025, "冲正金额超限"),
 
     FUND_TRANSACTION_FAILED(1030, "资金事务执行失败");
 

@@ -99,6 +99,7 @@ public class TradeTransactionServiceImpl implements ITradeTransactionService
         fundTransaction.setTargetId(transaction.getToId());
         fundTransaction.setTargetName(toAccount.getName());
         fundTransaction.setPipeline(transaction.getPipeline());
+        fundTransaction.setMaxAmount(transaction.getAmount());
         fundTransaction.setAmount(transaction.getAmount());
         fundTransaction.setStatus(TransactionStatus.STATUS_COMPLETED);
         fundTransaction.setDescription(transaction.getDescription());

@@ -146,6 +146,7 @@ CREATE TABLE `upay_frozen_transaction` (
   `target_id` BIGINT NOT NULL COMMENT '账号ID',
   `target_name` VARCHAR(20) COMMENT '用户名-冗余',
   `type` TINYINT UNSIGNED NOT NULL COMMENT '冻结类型-系统冻结 交易冻结',
+  `max_amount` BIGINT NOT NULL COMMENT '初始金额-分',
   `amount` BIGINT NOT NULL COMMENT '金额-分',
   `status` TINYINT UNSIGNED NOT NULL COMMENT '冻结状态-冻结 解冻',
   `frozen_time` DATETIME NOT NULL COMMENT '冻结时间',

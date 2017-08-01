@@ -18,6 +18,7 @@ public class FundTransaction
     private Long targetId;
     private String targetName;
     private Pipeline pipeline;
+    private Long maxAmount;
     private Long amount;
     private TransactionStatus status;
     private String description;
@@ -122,6 +123,16 @@ public class FundTransaction
     public void setPipeline(Pipeline pipeline)
     {
         this.pipeline = pipeline;
+    }
+
+    public Long getMaxAmount()
+    {
+        return maxAmount;
+    }
+
+    public void setMaxAmount(Long maxAmount)
+    {
+        this.maxAmount = maxAmount;
     }
 
     public Long getAmount()

@@ -33,10 +33,10 @@
     <update id="createFundTransaction" parameterType="org.openjava.upay.trade.model.FundTransaction">
         INSERT INTO upay_fund_transaction
             (id, merchant_id, serial_no, target_no, type, from_id, from_name, target_id,
-            target_name, pipeline, amount, status, description, created_time, modified_time)
+            target_name, pipeline, max_amount, amount, status, description, created_time, modified_time)
         VALUES
             (#{id}, #{merchantId}, #{serialNo}, #{targetNo}, #{type}, #{fromId}, #{fromName}, #{targetId},
-             #{targetName}, #{pipeline}, #{amount}, #{status}, #{description}, #{createdTime}, #{modifiedTime})
+             #{targetName}, #{pipeline}, #{maxAmount}, #{amount}, #{status}, #{description}, #{createdTime}, #{modifiedTime})
     </update>
 
     <update id="createTransactionFee" parameterType="org.openjava.upay.trade.model.TransactionFee">
