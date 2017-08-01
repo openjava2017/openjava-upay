@@ -12,7 +12,9 @@ public enum TransactionType implements IEnumType
 
     PAY_FEE("缴费", 14),
 
-    REFUND("退款", 15);
+    REFUND("退款", 15),
+
+    FLUSH("冲正", 16);
 
     private String name;
     private int code;

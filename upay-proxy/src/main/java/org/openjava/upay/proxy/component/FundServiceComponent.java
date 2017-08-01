@@ -34,6 +34,9 @@ public class FundServiceComponent
     @Resource
     private IFundTransactionService fundTransactionService;
 
+    @Resource
+    private IFlushTransactionService flushTransactionService;
+
     public ServiceResponse<TransactionId> deposit(ServiceRequest<Transaction> request) throws Exception
     {
         try {
@@ -134,6 +137,21 @@ public class FundServiceComponent
             throw new ServiceAccessException(fex.getMessage(), fex.getCode());
         } catch (Exception ex) {
             throw new ServiceAccessException("Unfreeze account fund failed", ex);
+        }
+    }
+
+    public ServiceResponse<TransactionId> flush(ServiceRequest<FlushTransaction> request)
+    {
+        try {
+            TransactionId result = flushTransactionService.flush(
+                    request.getContext().getMerchant(), request.getData());
+            return ServiceResponse.success(result);
+        } catch (IllegalArgumentException aex) {
+            throw new ServiceAccessException(aex.getMessage(), ErrorCode.ILLEGAL_ARGUMENT.getCode());
+        } catch (FundTransactionException fex) {
+            throw new ServiceAccessException(fex.getMessage(), fex.getCode());
+        } catch (Exception ex) {
+            throw new ServiceAccessException("Flush account fund failed", ex);
         }
     }
 }
