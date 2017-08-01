@@ -59,16 +59,16 @@ public class RefundTransactionServiceImpl implements IRefundTransactionService
 
         LOG.info("Handle fund transaction refund request, serialNo:{} amount:{}",
                 transaction.getSerialNo(), transaction.getAmount());
-        FundAccount account = fundAccountDao.findFundAccountById(transaction.getAccountId());
-        if (account == null || account.getStatus() == AccountStatus.LOGOFF) {
+        FundAccount fromAccount = fundAccountDao.findFundAccountById(transaction.getAccountId());
+        if (fromAccount == null || fromAccount.getStatus() == AccountStatus.LOGOFF) {
             throw new FundTransactionException(ErrorCode.ACCOUNT_NOT_FOUND);
         }
-        if (account.getStatus() != AccountStatus.NORMAL) {
+        if (fromAccount.getStatus() != AccountStatus.NORMAL) {
             throw new FundTransactionException(ErrorCode.INVALID_ACCOUNT_STATUS);
         }
 
         // 验证原收款方(现付款方)账号密码
-        passwordService.checkPaymentPermission(account, transaction.getPassword());
+        passwordService.checkPaymentPermission(fromAccount, transaction.getPassword());
         FundTransaction fundTransaction = fundTransactionDao.findFundTransactionByNo(transaction.getSerialNo());
         if (fundTransaction == null) {
             throw new FundTransactionException(ErrorCode.TRANSACTION_NOT_FOUND);
@@ -86,6 +86,11 @@ public class RefundTransactionServiceImpl implements IRefundTransactionService
         if (transaction.getAmount() > fundTransaction.getAmount()) {
             throw new FundTransactionException(ErrorCode.REFUND_FUNDS_EXCEED);
         }
+        // 验证原付款方(现收款方)账户状态
+        FundAccount toAccount = fundAccountDao.findFundAccountById(fundTransaction.getFromId());
+        if (toAccount == null || toAccount.getStatus() == AccountStatus.LOGOFF) {
+            throw new FundTransactionException(ErrorCode.ACCOUNT_NOT_FOUND);
+        }
         //更新资金事务表的交易金额, 初始金额max_amount不做修改
         Long newAmount = fundTransaction.getAmount() - transaction.getAmount();
         int result = fundTransactionDao.compareAndSetAmount(fundTransaction.getId(), newAmount,
@@ -102,10 +107,10 @@ public class RefundTransactionServiceImpl implements IRefundTransactionService
         refundTransaction.setSerialNo(serialKeyGenerator.nextSerialNo(String.valueOf(TransactionType.REFUND.getCode())));
         refundTransaction.setTargetNo(transaction.getSerialNo());
         refundTransaction.setType(TransactionType.REFUND);
-        refundTransaction.setFromId(fundTransaction.getTargetId());
-        refundTransaction.setFromName(fundTransaction.getTargetName());
-        refundTransaction.setTargetId(fundTransaction.getFromId());
-        refundTransaction.setTargetName(fundTransaction.getFromName());
+        refundTransaction.setFromId(fromAccount.getId());
+        refundTransaction.setFromName(fromAccount.getName());
+        refundTransaction.setTargetId(toAccount.getId());
+        refundTransaction.setTargetName(toAccount.getName());
         refundTransaction.setPipeline(fundTransaction.getPipeline());
         refundTransaction.setMaxAmount(transaction.getAmount());
         refundTransaction.setAmount(transaction.getAmount());
