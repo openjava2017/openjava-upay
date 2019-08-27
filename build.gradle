@@ -11,7 +11,7 @@ ext {
     quartzVersion = '2.2.1'
 }
 
-task release(dependsOn: 'build') << {
+task release(dependsOn: 'build') {
 }
 
 def loadGroovyConfig() {
@@ -29,11 +29,11 @@ gradle.taskGraph.whenReady {taskGraph ->
 }
 
 subprojects {
-    apply plugin: 'java'
+    apply plugin: 'java-library'
     apply plugin: 'maven'
     apply plugin: 'idea'
 
-    sourceCompatibility = 1.7
+    sourceCompatibility = 1.8
     version = '1.0.0'
 
     compileJava {
@@ -52,9 +52,8 @@ subprojects {
 
     repositories {
         mavenLocal()
-        mavenCentral()
         maven {
-            url "http://mvn3.diligrp.com"
+            url "http://maven.aliyun.com/nexus/content/groups/public/"
         }
     }
 
